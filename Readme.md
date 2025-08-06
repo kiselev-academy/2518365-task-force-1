@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Алексей Киселев](https://up.htmlacademy.ru/yii-individual/1/user/2518365).
-* Наставник: `Неизвестно`.
+* Наставник: [Сергей Попов](https://up.htmlacademy.ru/yii-individual/1/user/1181399).
 
 ---
 
