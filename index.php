@@ -1,21 +1,20 @@
 <?php
 
-require_once 'src/Task.php';
+declare(strict_types=1);
 
-$strategy1 = new Task('new', 1, 2);
-assert($strategy1->getNextStatus(Task::ACTION_CANCEL, Task::STATUS_NEW, 1) === Task::STATUS_CANCELLED);
-assert($strategy1->getNextStatus(Task::ACTION_RESPOND, Task::STATUS_NEW, 2) === Task::STATUS_AT_WORK);
-assert($strategy1->getNextStatus(Task::ACTION_REFUSE, Task::STATUS_AT_WORK, 1) === Task::STATUS_FAILED);
-assert($strategy1->getNextStatus(Task::ACTION_DONE, Task::STATUS_AT_WORK, 2) === Task::STATUS_DONE);
+use TaskForce\Models\Task;
+use TaskForce\Enums\Status;
+use TaskForce\Enums\Action;
 
-$strategy2 = new Task('new', 1, 2);
-assert($strategy2->getAvailableActions(Task::STATUS_NEW, 1) === [Task::ACTION_DONE, Task::ACTION_CANCEL]);
-assert($strategy2->getAvailableActions(Task::STATUS_NEW, 2) === [Task::ACTION_RESPOND]);
+require_once __DIR__ . '/vendor/autoload.php';
 
-$strategy3 = new Task('new', 1, 2);
-assert($strategy3->getAvailableActions(Task::STATUS_AT_WORK, 1) === [Task::ACTION_DONE]);
-assert($strategy3->getAvailableActions(Task::STATUS_AT_WORK, 2) === [Task::ACTION_REFUSE]);
+$strategy1 = new Task(Status::New, 1, 1);
+assert($strategy1->getNextStatus(Action::Cancel->value, Status::New) === Status::Cancelled);
+assert($strategy1->getNextStatus(Action::Respond->value, Status::New) === Status::Work);
+assert($strategy1->getNextStatus(Action::Cancel->value, Status::Work) === Status::Failed);
+assert($strategy1->getNextStatus(Action::Done->value, Status::Work) === Status::Done);
 
-$strategy4 = new Task('new', 1, 2);
-$mapAction = $strategy4->getActionMap();
-$mapStatus = $strategy4->getStatusMap();
+$strategy2 = new Task(Status::New, 1, 1);
+assert($strategy2->getAvailableActions(Status::New) === [Action::Respond, Action::Cancel]);
+assert($strategy2->getAvailableActions(Status::Work) === [Action::Done, Action::Cancel]);
+
