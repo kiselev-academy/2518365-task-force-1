@@ -1,0 +1,16 @@
+{
+    "name": "user/2518365-task-force-1",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "TaskForce\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kiselev Alex"
+        }
+    ],
+    "require": {}
+}
