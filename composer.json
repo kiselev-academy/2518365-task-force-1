@@ -11,8 +11,5 @@
         {
             "name": "Kiselev Alex"
         }
-    ],
-    "require": {
-      "php": "^8.1"
-    }
+    ]
 }

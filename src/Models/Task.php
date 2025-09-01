@@ -4,64 +4,93 @@ declare(strict_types=1);
 
 namespace TaskForce\Models;
 
-use TaskForce\Enums\Action;
-use TaskForce\Enums\Status;
+use TaskForce\Actions\CancelAction;
+use TaskForce\Actions\CompleteAction;
+use TaskForce\Actions\RefuseAction;
+use TaskForce\Actions\RespondAction;
+use TaskForce\Actions\StartAction;
 
 class Task
 {
-
-    protected Status $currentStatus = Status::New;
-    protected int $customerId;
-    protected int $executorId;
+    public const STATUS_NEW = 'new';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_WORK = 'work';
+    public const STATUS_DONE = 'done';
+    public const STATUS_FAILED = 'failed';
 
     /** Функция для получения ID исполнителя и ID заказчика
-     * @param Status $currentStatus текущий статус задачи
+     * @param string $status текущий статус задачи
      * @param int $customerId ID заказчика
      * @param int $executorId ID исполнителя
      */
-    public function __construct(Status $currentStatus, int $customerId, int $executorId)
+    public function __construct(public string $status, public int $customerId, public int $executorId)
     {
-        $this->currentStatus = $currentStatus;
-        $this->customerId = $customerId;
-        $this->executorId = $executorId;
     }
 
+    /** Функция для возврата «карты» статусов
+     * @return array возвращает массив с названием статусов
+     */
+    public function getStatusMap(): array
+    {
+        return [
+            self::STATUS_NEW => 'Новое',
+            self::STATUS_CANCELLED => 'Отменено',
+            self::STATUS_WORK => 'В работе',
+            self::STATUS_DONE => 'Выполнено',
+            self::STATUS_FAILED => 'Провалено'
+        ];
+    }
+
+    /** Функция для возврата «карты» действия
+     * @return array возвращает массив с названием действий
+     */
+    public function getActionMap(): array
+    {
+        return [
+            CancelAction::class => 'Отменить',
+            CompleteAction::class => 'Выполнено',
+            RespondAction::class => 'Откликнуться',
+            RefuseAction::class => 'Отказаться',
+            StartAction::class => 'Начать'
+        ];
+    }
 
     /** Функция для получения статуса задания после выполнения указанного действия
      * @param string $action текущее действие задания
-     * @param Status $currentStatus текущий статус
-     * @return Status|null возвращает статус задания
+     * @return string возвращает статус задания
      */
 
-    public function getNextStatus(string $action, Status $currentStatus): ?Status
+    public function getNextStatus(string $action): string
     {
-        $transitions = [
-            Status::New->value => [
-                Action::Respond->value => Status::Work,
-                Action::Cancel->value => Status::Cancelled
-            ],
-            Status::Work->value => [
-                Action::Done->value => Status::Done,
-                Action::Cancel->value => Status::Failed
-            ]
-        ];
-
-        return $transitions[$currentStatus->value][$action] ?? null;
+        return match ($action) {
+            CancelAction::class => self::STATUS_CANCELLED,
+            CompleteAction::class => self::STATUS_DONE,
+            RespondAction::class => self::STATUS_WORK,
+            RefuseAction::class => self::STATUS_FAILED,
+            StartAction::class => self::STATUS_NEW,
+        };
     }
 
     /** Функция для получения доступных действий для указанного статуса задания
+     * @param string $status текущий статус
+     * @param int $userId id исполнителя/заказчика
      * @return array возвращает статус задания
      */
-    public function getAvailableActions(Status $status): array
+    public function getAvailableActions(string $status, int $userId): array
     {
-        $actions = [
-            Status::New->value => [Action::Respond, Action::Cancel],
-            Status::Cancelled->value => [],
-            Status::Work->value => [Action::Done, Action::Cancel],
-            Status::Done->value => [],
-            Status::Failed->value => []
-        ];
+        if ($status === self::STATUS_NEW && $userId === $this->customerId) {
+            return [new StartAction(), new CancelAction()];
+        }
+        if ($status === self::STATUS_NEW && $userId === $this->executorId) {
+            return [new RespondAction()];
+        }
+        if ($status === self::STATUS_WORK && $userId === $this->customerId) {
+            return [new CompleteAction()];
+        }
+        if ($status === self::STATUS_WORK && $userId === $this->executorId) {
+            return [new RefuseAction()];
+        }
 
-        return $actions[$status->value] ?? [];
+        return [];
     }
 }
