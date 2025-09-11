@@ -2,10 +2,10 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=taskforce',
+    'dsn' => 'mysql:host=127.127.126.3;dbname=taskforce',
     'username' => 'root',
     'password' => 'root',
-    'charset' => 'utf8',
+    'charset' => 'utf8mb4',
 
     // Schema cache options (for production environment)
     //'enableSchemaCache' => true,
