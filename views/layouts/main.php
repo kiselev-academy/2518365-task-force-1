@@ -20,6 +20,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 $this->registerCssFile('@web/css/style.css');
 $this->registerCssFile('@web/css/normalize.css');
 $this->registerCssFile('@web/css/landing.css');
+$this->registerCssFile('@web/css/site.css');
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -78,15 +79,9 @@ $this->registerCssFile('@web/css/landing.css');
         </div>
     </header>
 
-    <main id="main" class="flex-shrink-0" role="main">
-        <div class="container">
-            <?php if (!empty($this->params['breadcrumbs'])): ?>
-                <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
-            <?php endif ?>
-            <?= Alert::widget() ?>
-            <?= $content ?>
-        </div>
-    </main>
+    <div class="main-container">
+        <?= $content ?>
+    </div>
 
     <?php $this->endBody() ?>
 </body>
