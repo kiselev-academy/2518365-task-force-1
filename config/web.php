@@ -42,14 +42,22 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'locale' => 'ru-RU',
+            'defaultTimeZone' => 'Europe/Moscow',
+            'dateFormat' => 'php:d.m.Y',
+            'datetimeFormat' => 'php:d.m.Y H:i:s',
+            'timeFormat' => 'php:H:i:s',
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'tasks' => 'tasks/index',
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];
