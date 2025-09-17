@@ -19,8 +19,6 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 $this->registerCssFile('@web/css/style.css');
 $this->registerCssFile('@web/css/normalize.css');
-$this->registerCssFile('@web/css/landing.css');
-$this->registerCssFile('@web/css/site.css');
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -79,9 +77,13 @@ $this->registerCssFile('@web/css/site.css');
         </div>
     </header>
 
-    <div class="main-container">
-        <?= $content ?>
-    </div>
+    <main class="main-content container">
+        <?php if (!empty($this->params['breadcrumbs'])): ?>
+            <?=Breadcrumbs::widget(['links' => $this->params['breadcrumbs']])?>
+        <?php endif?>
+        <?=Alert::widget()?>
+        <?=$content?>
+    </main>
 
     <?php $this->endBody() ?>
 </body>
