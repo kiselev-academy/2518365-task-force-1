@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use TaskForce\Models\Task as TaskBasic;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -31,10 +31,11 @@ use yii\db\ActiveRecord;
  *
  * @property City $city
  * @property Response[] $responses
- * @property Review[] $reviews
- * @property Review[] $reviews0
- * @property Task[] $tasks
- * @property Task[] $tasks0
+ * @property Review[] $customerReviews
+ * @property Review[] $executorReviews
+ * @property Task[] $customerTasks
+ * @property Task[] $executorTasks
+ * @property mixed|null $getExecutorReviews
  */
 class User extends ActiveRecord
 {
@@ -124,41 +125,41 @@ class User extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Reviews]].
+     * Gets query for [[customerReviews]].
      *
      * @return ActiveQuery
      */
-    public function getReviews(): ActiveQuery
+    public function getCustomerReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['customer_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Reviews0]].
+     * Gets query for [[executorReviews]].
      *
      * @return ActiveQuery
      */
-    public function getReviews0(): ActiveQuery
+    public function getExecutorReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['executor_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks]].
+     * Gets query for [[customerTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks(): ActiveQuery
+    public function getCustomerTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['customer_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks0]].
+     * Gets query for [[executorTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks0(): ActiveQuery
+    public function getExecutorTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
     }
@@ -209,4 +210,37 @@ class User extends ActiveRecord
     {
         $this->role = self::ROLE_EXECUTOR;
     }
+
+    public function getUserRating(): string
+    {
+        $sum = 0;
+        $reviews = $this->getExecutorReviews;
+
+        foreach ($reviews as $review) {
+            $sum += $review['rating'];
+        }
+
+        if ($sum < 0) {
+            $rating = 0;
+        }
+        return $rating = round($sum / (count($reviews) + $this->failed_tasks), 2);
+    }
+
+    public static function getUserStars($rating): string
+    {
+        $count = round($rating);
+        $filledStars = str_repeat('<span class="fill-star">&nbsp;</span>', $count);
+        $emptyStars = str_repeat('<span>&nbsp;</span>', 5 - $count);
+        return $filledStars . $emptyStars;
+    }
+
+    public function getUserStatus(): string
+    {
+        if (Task::findOne(['executor_id' => $this->id, 'status' => TaskBasic::STATUS_WORK])) {
+            return 'Занят';
+        }
+        return 'Открыт для новых заказов';
+    }
+
 }
+

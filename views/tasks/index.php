@@ -9,19 +9,20 @@
 
 use app\models\forms\TasksFilter;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
-$this->title = 'Новые задания';
+$this->title = 'Taskforce';
 
 ?>
-
+<main class="main-content container">
 <div class="left-column">
     <h3 class="head-main head-task">Новые задания</h3>
     <?php if (!empty($tasks)): ?>
         <?php foreach ($tasks as $task): ?>
             <div class="task-card">
                 <div class="header-task">
-                    <a href="#" class="link link--block link--big"><?= Html::encode($task->title) ?></a>
+                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="link link--block link--big"><?= Html::encode($task->title) ?></a>
                     <p class="price price--task"><?= Html::encode($task->budget) ?>&nbsp;₽</p>
                 </div>
                 <p class="info-text">
@@ -35,7 +36,7 @@ $this->title = 'Новые задания';
                         <?= $task->city->name ?? 'Удаленная работа' ?>
                     </p>
                     <p class="info-text category-text"><?= $task->category->name ?></p>
-                    <a href="#" class="button button--black">Смотреть задание</a>
+                    <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="button button--black">Смотреть задание</a>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -120,3 +121,4 @@ $this->title = 'Новые задания';
         </div>
     </div>
 </div>
+</main>

@@ -61,4 +61,9 @@ class Category extends ActiveRecord
         return $this->hasMany(Task::class, ['category_id' => 'id']);
     }
 
+    public static function getCategoryName($id): string
+    {
+        return self::find()->select('name')->where(['id' => $id])->scalar() ?? '';
+    }
+
 }

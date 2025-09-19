@@ -51,7 +51,7 @@ class Task
      * Функция для возврата «карты» статусов
      * @return array возвращает массив с названием статусов
      */
-    public function getStatusMap(): array
+    public static function getStatusMap(): array
     {
         return [
             self::STATUS_NEW => 'Новое',
@@ -60,6 +60,16 @@ class Task
             self::STATUS_COMPLETED => 'Выполнено',
             self::STATUS_FAILED => 'Провалено',
         ];
+    }
+
+    /**
+     * Функция для получения названия статуса
+     * @return string название статуса
+     */
+    public static function getStatusName($status): string
+    {
+        $name = self::getStatusMap();
+        return $name[$status] ?? '';
     }
 
     /**
