@@ -4,41 +4,44 @@
 /** @var yii\data\ActiveDataProvider $dataProvider */
 /** @var array $categories */
 /** @var $task */
+
 /** @var $tasksQuery */
 
 use app\models\forms\TasksFilter;
+use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+
+$this->title = 'Новые задания';
 
 ?>
 
 <div class="left-column">
     <h3 class="head-main head-task">Новые задания</h3>
-
-    <?php foreach ($tasks as $task): ?>
-        <div class="task-card">
-            <div class="header-task">
-                <a  href="#" class="link link--block link--big"><?=$task->title?></a>
-                <p class="price price--task"><?=$task->budget?>&nbsp;₽</p>
-            </div>
-            <p class="info-text">
-                <?= Yii::$app->formatter->format(
-                    $task->creation_date,
-                    'relativeTime'
-                ) ?>
-            </p>
-            <p class="task-text"><?=$task->description?></p>
-
-            <p>Откликов: <?= $task->getResponses()->count(); ?></p>
-
-            <div class="footer-task">
-                <p class="info-text town-text">
-                    <?=isset($task->city->name) ? $task->city->name : 'Удаленная работа' ?>
+    <?php if (!empty($tasks)): ?>
+        <?php foreach ($tasks as $task): ?>
+            <div class="task-card">
+                <div class="header-task">
+                    <a href="#" class="link link--block link--big"><?= Html::encode($task->title) ?></a>
+                    <p class="price price--task"><?= Html::encode($task->budget) ?>&nbsp;₽</p>
+                </div>
+                <p class="info-text">
+                    <?= Yii::$app->formatter->format($task->created_at, 'relativeTime') ?>
                 </p>
-                <p class="info-text category-text"><?=$task->category->name?></p>
-                <a href="#" class="button button--black">Смотреть задание</a>
+                <p class="task-text"><?= Html::encode($task->description) ?></p>
+                <p>Откликов: <?= $task->getResponses()->count(); ?></p>
+
+                <div class="footer-task">
+                    <p class="info-text town-text">
+                        <?= $task->city->name ?? 'Удаленная работа' ?>
+                    </p>
+                    <p class="info-text category-text"><?= $task->category->name ?></p>
+                    <a href="#" class="button button--black">Смотреть задание</a>
+                </div>
             </div>
-        </div>
-    <?php endforeach;?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <h3 class="head-main head-task">Задания не найдены.</h3>
+    <?php endif; ?>
 
     <div class="pagination-wrapper">
         <ul class="pagination-list">
@@ -69,11 +72,11 @@ use yii\widgets\ActiveForm;
                 'fieldConfig' => [
                     'template' => "{input}",
                 ],
-            ]);?>
+            ]); ?>
 
             <h4 class="head-card">Категории</h4>
-            <?=$form->field($filter, 'categories')
-                ->checkboxList(
+            <?php if (!empty($filter)): ?>
+                <?= $form->field($filter, 'categories')->checkboxList(
                     $categories,
                     [
                         'class' => 'checkbox-wrapper',
@@ -83,36 +86,37 @@ use yii\widgets\ActiveForm;
                             ],
                         ],
                     ]
-                );?>
+                ); ?>
 
-            <h4 class="head-card">Дополнительно</h4>
-            <?=$form->field($filter, 'distantWork')->checkbox(
-                [
-                    'id' => 'distant-work',
-                    'labelOptions' => [
-                        'class' => 'control-label',
-                    ],
-                ]
-            );?>
-            <?=$form->field($filter, 'noResponse')->checkbox(
-                [
-                    'id' => 'no-response',
-                    'labelOptions' => [
-                        'class' => 'control-label',
-                    ],
-                ]
-            );?>
+                <h4 class="head-card">Дополнительно</h4>
+                <?= $form->field($filter, 'distantWork')->checkbox(
+                    [
+                        'id' => 'distant-work',
+                        'labelOptions' => [
+                            'class' => 'control-label',
+                        ],
+                    ]
+                ); ?>
+                <?= $form->field($filter, 'noResponse')->checkbox(
+                    [
+                        'id' => 'no-response',
+                        'labelOptions' => [
+                            'class' => 'control-label',
+                        ],
+                    ]
+                ); ?>
 
-            <h4 class="head-card">Период</h4>
-            <?=$form->field($filter, 'period')->dropDownList(
-                TasksFilter::getPeriodsMap(),
-                [
-                    'id' => 'period-value',
-                ]
-            );?>
+                <h4 class="head-card">Период</h4>
+                <?= $form->field($filter, 'period')->dropDownList(
+                    TasksFilter::getPeriodsMap(),
+                    [
+                        'id' => 'period-value',
+                    ]
+                ); ?>
+            <?php endif; ?>
 
             <input type="submit" class="button button--blue" value="Искать">
-            <?php ActiveForm::end();?>
+            <?php ActiveForm::end(); ?>
         </div>
     </div>
 </div>

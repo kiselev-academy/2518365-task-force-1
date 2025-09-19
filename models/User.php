@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -13,26 +12,29 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property string $password_hash
+ * @property string $password
  * @property string $role
- * @property int $city_id
- * @property string|null $avatar
- * @property string|null $telegram
- * @property string|null $phone
- * @property int|null $show_contacts
  * @property string|null $birthday
+ * @property string|null $phone
+ * @property string|null $telegram
  * @property string|null $info
+ * @property string|null $specializations
+ * @property string|null $avatar
+ * @property int|null $successful_tasks
+ * @property int|null $failed_tasks
+ * @property int $city_id
+ * @property int|null $vk_id
+ * @property int $hidden_contacts
+ * @property float $total_score
  * @property string|null $created_at
  * @property string|null $updated_at
  *
- * @property Category[] $categories
  * @property City $city
  * @property Response[] $responses
  * @property Review[] $reviews
  * @property Review[] $reviews0
  * @property Task[] $tasks
  * @property Task[] $tasks0
- * @property UserSpecialization[] $userSpecializations
  */
 class User extends ActiveRecord
 {
@@ -57,14 +59,16 @@ class User extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['avatar', 'telegram', 'phone', 'birthday', 'info'], 'default', 'value' => null],
-            [['show_contacts'], 'default', 'value' => 1],
-            [['name', 'email', 'password_hash', 'role', 'city_id'], 'required'],
+            [['birthday', 'phone', 'telegram', 'info', 'specializations', 'avatar', 'successful_tasks', 'failed_tasks', 'vk_id'], 'default', 'value' => null],
+            [['total_score'], 'default', 'value' => 0],
+            [['name', 'email', 'password', 'role', 'city_id'], 'required'],
             [['role', 'info'], 'string'],
-            [['city_id', 'show_contacts'], 'integer'],
             [['birthday', 'created_at', 'updated_at'], 'safe'],
-            [['name', 'email', 'password_hash', 'avatar', 'telegram'], 'string', 'max' => 255],
+            [['successful_tasks', 'failed_tasks', 'city_id', 'vk_id', 'hidden_contacts'], 'integer'],
+            [['total_score'], 'number'],
+            [['name', 'email', 'password', 'telegram'], 'string', 'max' => 128],
             [['phone'], 'string', 'max' => 11],
+            [['specializations', 'avatar'], 'string', 'max' => 255],
             ['role', 'in', 'range' => array_keys(self::optsRole())],
             [['email'], 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
@@ -80,29 +84,23 @@ class User extends ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'email' => 'Email',
-            'password_hash' => 'Password Hash',
+            'password' => 'Password',
             'role' => 'Role',
-            'city_id' => 'City ID',
-            'avatar' => 'Avatar',
-            'telegram' => 'Telegram',
-            'phone' => 'Phone',
-            'show_contacts' => 'Show Contacts',
             'birthday' => 'Birthday',
+            'phone' => 'Phone',
+            'telegram' => 'Telegram',
             'info' => 'Info',
+            'specializations' => 'Specializations',
+            'avatar' => 'Avatar',
+            'successful_tasks' => 'Successful Tasks',
+            'failed_tasks' => 'Failed Tasks',
+            'city_id' => 'City ID',
+            'vk_id' => 'Vk ID',
+            'hidden_contacts' => 'Hidden Contacts',
+            'total_score' => 'Total Score',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
-    }
-
-    /**
-     * Gets query for [[Categories]].
-     *
-     * @return ActiveQuery
-     * @throws InvalidConfigException
-     */
-    public function getCategories(): ActiveQuery
-    {
-        return $this->hasMany(Category::class, ['id' => 'category_id'])->viaTable('user_specializations', ['user_id' => 'id']);
     }
 
     /**
@@ -163,16 +161,6 @@ class User extends ActiveRecord
     public function getTasks0(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[UserSpecializations]].
-     *
-     * @return ActiveQuery
-     */
-    public function getUserSpecializations(): ActiveQuery
-    {
-        return $this->hasMany(UserSpecialization::class, ['user_id' => 'id']);
     }
 
 

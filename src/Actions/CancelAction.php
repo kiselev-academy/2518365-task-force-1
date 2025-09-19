@@ -1,21 +1,24 @@
 <?php
 
-declare(strict_types=1);
-
 namespace TaskForce\Actions;
 
 use TaskForce\Models\Task;
 
 class CancelAction extends AbstractAction
 {
-    protected string $name = 'Отменить';
-    protected string $internalName = 'Cancel';
-
-    protected function isAvailable(Task $task, int $userId): bool
+    public static function getName(): string
     {
-        if ($task->status === Task::STATUS_NEW && $task->customerId === $userId) {
-            return true;
-        }
-        return false;
+        return 'cancel';
+    }
+
+    public static function getTitle(): string
+    {
+        return 'Отменить';
+    }
+
+    public function checkRight(Task $task, int $currentUserId): bool
+    {
+        return
+            $task->currentStatus === Task::STATUS_NEW && $currentUserId === $task->getIdCustomer();
     }
 }

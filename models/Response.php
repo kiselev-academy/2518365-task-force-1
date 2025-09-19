@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
  * @property int $executor_id
  * @property int|null $price
  * @property string|null $comment
+ * @property string $status
  * @property string|null $created_at
  * @property string|null $updated_at
  *
@@ -39,10 +40,12 @@ class Response extends ActiveRecord
     {
         return [
             [['price', 'comment'], 'default', 'value' => null],
+            [['status'], 'default', 'value' => 'new'],
             [['task_id', 'executor_id'], 'required'],
             [['task_id', 'executor_id', 'price'], 'integer'],
             [['comment'], 'string'],
             [['created_at', 'updated_at'], 'safe'],
+            [['status'], 'string', 'max' => 128],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
         ];
@@ -59,6 +62,7 @@ class Response extends ActiveRecord
             'executor_id' => 'Executor ID',
             'price' => 'Price',
             'comment' => 'Comment',
+            'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];

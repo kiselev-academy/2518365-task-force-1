@@ -3,10 +3,10 @@
 namespace app\controllers;
 
 use app\models\Category;
-use app\models\forms\TasksFilter;
 use app\models\TaskSearch;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
+use app\models\forms\TasksFilter;
 
 class TasksController extends Controller
 {
@@ -20,6 +20,6 @@ class TasksController extends Controller
         $categoriesQuery = Category::find()->select(['id', 'name'])->all();
         $categories = ArrayHelper::map($categoriesQuery, 'id', 'name');
 
-        return $this->render('index', ['tasks' => $tasks, 'filter' => $filter, 'categories' => $categories]);
+        return $this->render('index', compact('tasks', 'filter', 'categories'));
     }
 }

@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -12,11 +11,9 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $name
- * @property string|null $icon
+ * @property string $icon
  *
  * @property Task[] $tasks
- * @property UserSpecialization[] $userSpecializations
- * @property User[] $users
  */
 class Category extends ActiveRecord
 {
@@ -36,8 +33,7 @@ class Category extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['icon'], 'default', 'value' => null],
-            [['name'], 'required'],
+            [['name', 'icon'], 'required'],
             [['name', 'icon'], 'string', 'max' => 128],
             [['name'], 'unique'],
         ];
@@ -63,27 +59,6 @@ class Category extends ActiveRecord
     public function getTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['category_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[UserSpecializations]].
-     *
-     * @return ActiveQuery
-     */
-    public function getUserSpecializations(): ActiveQuery
-    {
-        return $this->hasMany(UserSpecialization::class, ['category_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Users]].
-     *
-     * @return ActiveQuery
-     * @throws InvalidConfigException
-     */
-    public function getUsers(): ActiveQuery
-    {
-        return $this->hasMany(User::class, ['id' => 'user_id'])->viaTable('user_specializations', ['category_id' => 'id']);
     }
 
 }

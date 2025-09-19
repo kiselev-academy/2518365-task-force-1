@@ -13,8 +13,8 @@ use yii\db\ActiveRecord;
  * @property int $task_id
  * @property int $customer_id
  * @property int $executor_id
- * @property int $rating
- * @property string $comment
+ * @property int|null $rating
+ * @property string|null $comment
  * @property string|null $created_at
  * @property string|null $updated_at
  *
@@ -40,7 +40,8 @@ class Review extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['task_id', 'customer_id', 'executor_id', 'rating', 'comment'], 'required'],
+            [['rating', 'comment'], 'default', 'value' => null],
+            [['task_id', 'customer_id', 'executor_id'], 'required'],
             [['task_id', 'customer_id', 'executor_id', 'rating'], 'integer'],
             [['comment'], 'string'],
             [['created_at', 'updated_at'], 'safe'],

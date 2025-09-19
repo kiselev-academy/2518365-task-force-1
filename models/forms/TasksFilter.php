@@ -1,15 +1,15 @@
 <?php
+
 namespace app\models\forms;
 
 use yii\base\Model;
-use yii\db\ActiveRecord;
 
 class TasksFilter extends Model
 {
-    const string ALL_TIME = 'ALL TIME';
-    const string ONE_HOUR = '1 HOUR';
-    const string HALF_DAY = '12 HOUR';
-    const string ONE_DAY = '24 HOUR';
+    public const string ALL_TIME = 'ALL TIME';
+    public const string ONE_HOUR = '1 HOUR';
+    public const string HALF_DAY = '12 HOUR';
+    public const string ONE_DAY = '24 HOUR';
 
     public array $categories = [];
     public bool $distantWork = false;
