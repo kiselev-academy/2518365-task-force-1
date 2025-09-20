@@ -12,17 +12,18 @@ use yii\web\NotFoundHttpException;
 
 class TasksController extends Controller
 {
-    public function actionIndex(): string
+    public function actionIndex(?int $category = null): string
     {
         $TaskSearch = new TaskSearch();
-
-        $tasks = $TaskSearch->getTasks();
+        $result = $TaskSearch->getTasks($category);
         $filter = new TasksFilter();
 
         $categoriesQuery = Category::find()->select(['id', 'name'])->all();
         $categories = ArrayHelper::map($categoriesQuery, 'id', 'name');
+        $tasks = $result['tasks'];
+        $pagination = $result['pagination'];
 
-        return $this->render('index', compact('tasks', 'filter', 'categories'));
+        return $this->render('index', compact('tasks', 'filter', 'categories', 'pagination'));
     }
 
     /**
@@ -30,7 +31,7 @@ class TasksController extends Controller
      */
     public function actionView($id): string
     {
-        $task = Task::findOne($id);
+        $task = Task::find()->with(['responses.executor'])->where(['id' => $id])->one();
         if (!$task) {
             throw new NotFoundHttpException('Задание с ID $id не найдено');
         }

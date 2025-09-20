@@ -6,17 +6,22 @@ use app\models\forms\TasksFilter;
 use TaskForce\Models\Task as TaskBasic;
 use Yii;
 use yii\base\Model;
+use yii\data\Pagination;
 use yii\db\Expression;
 
 class TaskSearch extends Model
 {
-    public function getTasks(): array
+    public function getTasks(?int $category = null): array
     {
         $tasks = Task::find()
             ->where(['tasks.status' => TaskBasic::STATUS_NEW])
             ->orderBy(['created_at' => SORT_DESC])
             ->with('category')
             ->with('city');
+
+        if ($category) {
+            $tasks = $tasks->andWhere(['category_id' => $category]);
+        }
 
         $request = Yii::$app->getRequest();
 
@@ -43,6 +48,18 @@ class TaskSearch extends Model
 
         }
 
-        return $tasks->all();
+        $pagination = new Pagination([
+            'totalCount' => $tasks->count(),
+            'pageSize' => 5,
+        ]);
+
+        $tasks = $tasks->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return [
+            'tasks' => $tasks,
+            'pagination' => $pagination,
+        ];
     }
 }

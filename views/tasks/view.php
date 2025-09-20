@@ -2,6 +2,7 @@
 
 use app\assets\MainAsset;
 use app\models\User;
+use app\models\widgets\RatingWidget;
 use TaskForce\Models\Task as TaskBasic;
 use yii\helpers\Html;
 
@@ -46,10 +47,10 @@ $this->title = "Taskforce";
                        class="link link--block link--big"><?= Html::encode($response->executor->name) ?></a>
                     <div class="response-wrapper">
                         <div class="stars-rating small">
-                            <?= User::getUserStars($response->executor->getUserRating) ?>
+                            <?= RatingWidget::widget(['rating' => $response->executor->getUserRating()]) ?>
                         </div>
                         <p class="reviews">
-                            <?= Yii::t('app', '{n, plural, =0{# отзывов} one{# отзыв} =2{# отзыва} =3{# отзыва} =4{# отзыва} few{# отзыва} many{# отзывов} other{# отзывов}}', ['n' => count($response->executor->getExecutorReviews)]); ?>
+                            <?= Yii::t('app', '{n, plural, =0{# отзывов} one{# отзыв} =2{# отзыва} =3{# отзыва} =4{# отзыва} few{# отзыва} many{# отзывов} other{# отзывов}}', ['n' => $response->executor->getExecutorReviews()->count()]); ?>
                         </p>
                     </div>
                     <p class="response-message">
@@ -68,7 +69,6 @@ $this->title = "Taskforce";
                 </div>
             </div>
         <?php endforeach; ?>
-
     <?php endif; ?>
 
 </div>

@@ -214,16 +214,21 @@ class User extends ActiveRecord
     public function getUserRating(): string
     {
         $sum = 0;
-        $reviews = $this->getExecutorReviews;
+        $reviews = $this->getExecutorReviews()->all();
 
         foreach ($reviews as $review) {
-            $sum += $review['rating'];
+            $sum += $review['rating'] ?? 0;
         }
 
         if ($sum < 0) {
-            $rating = 0;
+            return 0;
         }
-        return $rating = round($sum / (count($reviews) + $this->failed_tasks), 2);
+
+        if (count($reviews) + $this->failed_tasks) {
+            return round($sum / (count($reviews) + $this->failed_tasks), 2);
+        }
+
+        return 0;
     }
 
     public static function getUserStars($rating): string
