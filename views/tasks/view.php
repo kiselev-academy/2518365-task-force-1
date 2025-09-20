@@ -1,7 +1,6 @@
 <?php
 
 use app\assets\MainAsset;
-use app\models\User;
 use app\models\widgets\RatingWidget;
 use TaskForce\Models\Task as TaskBasic;
 use yii\helpers\Html;
