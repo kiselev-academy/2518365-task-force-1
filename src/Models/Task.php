@@ -1,70 +1,75 @@
 <?php
 
-declare(strict_types=1);
-
 namespace TaskForce\Models;
 
+use Taskforce\Actions\AcceptAction;
 use TaskForce\Actions\CancelAction;
-use TaskForce\Actions\CompleteAction;
 use TaskForce\Actions\RefuseAction;
 use TaskForce\Actions\RespondAction;
-use TaskForce\Actions\StartAction;
 use TaskForce\Exceptions\ActionException;
-use TaskForce\Exceptions\RoleException;
+use TaskForce\Exceptions\NotStatusException;
 use TaskForce\Exceptions\StatusException;
 
 class Task
 {
-    public const STATUS_NEW = 'new';
-    public const STATUS_CANCELLED = 'cancelled';
-    public const STATUS_WORK = 'work';
-    public const STATUS_DONE = 'done';
-    public const STATUS_FAILED = 'failed';
+    public const string STATUS_NEW = 'new';
+    public const string STATUS_CANCELLED = 'cancelled';
+    public const string STATUS_WORK = 'work';
+    public const string STATUS_COMPLETED = 'completed';
+    public const string STATUS_FAILED = 'failed';
+
+    public const string ACTION_CANCEL = CancelAction::class;
+    public const string ACTION_ACCEPT = AcceptAction::class;
+    public const string ACTION_RESPOND = RespondAction::class;
+    public const string ACTION_REFUSE = RefuseAction::class;
 
     /**
      * Функция для получения ID исполнителя и ID заказчика
-     * @param string $status текущий статус задачи
+     * @param string $currentStatus текущий статус задачи
      * @param int $customerId ID заказчика
-     * @param ?int $executorId ID исполнителя
-     * @throws StatusException Исключение если неверный статус
-     * @throws RoleException Исключение если неверная роль
+     * @param int $executorId ID исполнителя
+     * @throws StatusException Исключение
      */
-    public function __construct(public string $status, public int $customerId, public ?int $executorId)
+    public function __construct(public int $customerId, public int $executorId, public string $currentStatus = Task::STATUS_NEW)
     {
-        if ($status === self::STATUS_NEW && $executorId !== null) {
-            throw new StatusException('Неверный статус задания');
-        }
-        if (in_array($status, $this->getStatusForExecutor(), true) && $executorId === null) {
-            throw new RoleException('Неверная роль для данного статуса');
+        if (!array_key_exists($currentStatus, $this->getStatusMap())) {
+            throw new StatusException('Неверный статус задания!');
         }
     }
 
-    /**
-     * Функция для возврата «карты» статусов для исполнителя
-     * @return array возвращает массив с названиями статусов
-     */
-    public function getStatusForExecutor(): array
+    public function getIdCustomer(): int
     {
-        return [
-            self::STATUS_DONE,
-            self::STATUS_WORK,
-            self::STATUS_FAILED
-        ];
+        return $this->customerId;
+    }
+
+    public function getIdExecutor(): int
+    {
+        return $this->executorId;
     }
 
     /**
      * Функция для возврата «карты» статусов
      * @return array возвращает массив с названием статусов
      */
-    public function getStatusMap(): array
+    public static function getStatusMap(): array
     {
         return [
             self::STATUS_NEW => 'Новое',
             self::STATUS_CANCELLED => 'Отменено',
             self::STATUS_WORK => 'В работе',
-            self::STATUS_DONE => 'Выполнено',
-            self::STATUS_FAILED => 'Провалено'
+            self::STATUS_COMPLETED => 'Выполнено',
+            self::STATUS_FAILED => 'Провалено',
         ];
+    }
+
+    /**
+     * Функция для получения названия статуса
+     * @return string название статуса
+     */
+    public static function getStatusName($status): string
+    {
+        $name = self::getStatusMap();
+        return $name[$status] ?? '';
     }
 
     /**
@@ -74,11 +79,10 @@ class Task
     public function getActionMap(): array
     {
         return [
-            CancelAction::class => 'Отменить',
-            CompleteAction::class => 'Выполнено',
-            RespondAction::class => 'Откликнуться',
-            RefuseAction::class => 'Отказаться',
-            StartAction::class => 'Начать'
+            self::ACTION_CANCEL => CancelAction::getTitle(),
+            self::ACTION_ACCEPT => AcceptAction::getTitle(),
+            self::ACTION_RESPOND => RespondAction::getTitle(),
+            self::ACTION_REFUSE => RefuseAction::getTitle(),
         ];
     }
 
@@ -86,44 +90,37 @@ class Task
      * Функция для получения статуса задания после выполнения указанного действия
      * @param string $action текущее действие задания
      * @return string возвращает статус задания
-     * @throws ActionException Исключение если неверное действие
+     * @throws ActionException Исключение
      */
 
     public function getNextStatus(string $action): string
     {
         if (!array_key_exists($action, $this->getActionMap())) {
-            throw new ActionException('Неверное действие для данного статуса');
+            throw new ActionException('Нет доступных действий!');
         }
         return match ($action) {
-            CancelAction::class => self::STATUS_CANCELLED,
-            CompleteAction::class => self::STATUS_DONE,
-            RespondAction::class => self::STATUS_WORK,
-            RefuseAction::class => self::STATUS_FAILED,
-            StartAction::class => self::STATUS_NEW,
+            self::ACTION_CANCEL => self::STATUS_CANCELLED,
+            self::ACTION_ACCEPT => self::STATUS_COMPLETED,
+            self::ACTION_RESPOND => self::STATUS_WORK,
+            self::ACTION_REFUSE => self::STATUS_FAILED,
         };
     }
 
     /**
      * Функция для получения доступных действий для указанного статуса задания
      * @param string $status текущий статус
-     * @param int $userId id исполнителя/заказчика
-     * @return array возвращает статус задания
+     * @return array возвращает действие задания
+     * @throws NotStatusException Исключение
      */
-    public function getAvailableActions(string $status, int $userId): array
+    public function getAvailableActions(string $status): array
     {
-        if ($status === self::STATUS_NEW && $userId === $this->customerId) {
-            return [new StartAction(), new CancelAction()];
+        if (!array_key_exists($status, $this->getStatusMap())) {
+            throw new NotStatusException('Несуществующий статус задания!');
         }
-        if ($status === self::STATUS_NEW && $userId === $this->executorId) {
-            return [new RespondAction()];
-        }
-        if ($status === self::STATUS_WORK && $userId === $this->customerId) {
-            return [new CompleteAction()];
-        }
-        if ($status === self::STATUS_WORK && $userId === $this->executorId) {
-            return [new RefuseAction()];
-        }
-
-        return [];
+        $actions = [
+            self::STATUS_NEW => [self::ACTION_RESPOND, self::ACTION_CANCEL],
+            self::STATUS_WORK => [self::ACTION_ACCEPT, self::ACTION_REFUSE],
+        ];
+        return $actions[$status] ?? [];
     }
 }

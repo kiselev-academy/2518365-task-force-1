@@ -1,53 +1,65 @@
 <?php
+
 namespace app\models;
 
-use Yii;
 use app\models\forms\TasksFilter;
+use TaskForce\Models\Task as TaskBasic;
+use Yii;
 use yii\base\Model;
-use yii\db\ActiveRecord;
+use yii\data\Pagination;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
 
 class TaskSearch extends Model
 {
-    public function getTasks(): array
+    public function getTasks(?int $category = null): array
     {
         $tasks = Task::find()
-            ->where(['status' => Task::STATUS_NEW])
+            ->where(['tasks.status' => TaskBasic::STATUS_NEW])
             ->orderBy(['created_at' => SORT_DESC])
             ->with('category')
             ->with('city');
 
-        $request = Yii::$app->getRequest();
-
-        if ($request->get('TasksFilter')) {
-
-            $categories = $request->get('TasksFilter')['categories'];
-            $distantWork = $request->get('TasksFilter')['distantWork'];
-            $noResponse = $request->get('TasksFilter')['noResponse'];
-            $period = $request->get('TasksFilter')['period'];
-
-            if ($categories) {
-                $tasks = $tasks->andWhere(['in', 'category_id', $categories]);
-            }
-
-            if ($distantWork) {
-                $tasks = $tasks->andWhere(['city_id' => null]);
-            }
-
-            if ($noResponse) {
-                $tasksWithResponse = Response::find()
-                    ->select(['task_id', 'id'])
-                    ->all();
-                $tasksWithResponse = ArrayHelper::map($tasksWithResponse, 'id', 'task_id');
-                $tasks = $tasks->andWhere(['not in', 'id', $tasksWithResponse]);
-            }
-
-            if ($period !== TasksFilter::ALL_TIME) {
-                $tasks = $tasks->andWhere(['>', 'created_at', new Expression("CURRENT_TIMESTAMP() - INTERVAL $period")]);
-            }
+        if ($category) {
+            $tasks = $tasks->andWhere(['category_id' => $category]);
         }
 
-        return $tasks->all();
+        $request = Yii::$app->getRequest();
+
+        $categories = ($request->get('TasksFilter')['categories'] ?? []);
+        if (!empty($categories)) {
+            $tasks = $tasks->andWhere(['in', 'category_id', $categories]);
+        }
+
+        $distantWork = ($request->get('TasksFilter')['distantWork'] ?? []);
+        if (!empty($distantWork)) {
+            $tasks = $tasks->andWhere(['city_id' => null]);
+        }
+
+        $noResponse = ($request->get('TasksFilter')['noResponse'] ?? []);
+        if (!empty($noResponse)) {
+            $tasks->joinWith('responses')
+                ->groupBy('tasks.id')
+                ->having('COUNT(responses.id) = 0');
+        }
+
+        $period = ($request->get('TasksFilter')['period'] ?? []);
+        if (!empty($period) && $period !== TasksFilter::ALL_TIME) {
+            $tasks = $tasks->andWhere(['>', 'created_at', new Expression("CURRENT_TIMESTAMP() - INTERVAL $period")]);
+
+        }
+
+        $pagination = new Pagination([
+            'totalCount' => $tasks->count(),
+            'pageSize' => 5,
+        ]);
+
+        $tasks = $tasks->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return [
+            'tasks' => $tasks,
+            'pagination' => $pagination,
+        ];
     }
 }

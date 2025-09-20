@@ -39,6 +39,7 @@ class File extends ActiveRecord
             [['task_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['path'], 'string', 'max' => 255],
+            [['path'], 'unique'],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
         ];
     }

@@ -34,7 +34,7 @@ $this->registerCssFile('@web/css/normalize.css');
     <header class="page-header">
         <nav class="main-nav">
             <a href='#' class="header-logo">
-                <img class="logo-image" src="img/logotype.png" width=227 height=60 alt="taskforce">
+                <img class="logo-image" src="/img/logotype.png" width=227 height=60 alt="taskforce">
             </a>
             <div class="nav-wrapper">
                 <ul class="nav-list">
@@ -77,13 +77,11 @@ $this->registerCssFile('@web/css/normalize.css');
         </div>
     </header>
 
-    <main class="main-content container">
-        <?php if (!empty($this->params['breadcrumbs'])): ?>
-            <?=Breadcrumbs::widget(['links' => $this->params['breadcrumbs']])?>
-        <?php endif?>
-        <?=Alert::widget()?>
-        <?=$content?>
-    </main>
+    <?php if (!empty($this->params['breadcrumbs'])): ?>
+        <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
+    <?php endif ?>
+    <?= Alert::widget() ?>
+    <?= $content ?>
 
     <?php $this->endBody() ?>
 </body>

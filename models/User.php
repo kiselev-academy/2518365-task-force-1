@@ -2,8 +2,7 @@
 
 namespace app\models;
 
-use Yii;
-use yii\base\InvalidConfigException;
+use TaskForce\Models\Task as TaskBasic;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -13,26 +12,30 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property string $password_hash
+ * @property string $password
  * @property string $role
- * @property int $city_id
- * @property string|null $avatar
- * @property string|null $telegram
- * @property string|null $phone
- * @property int|null $show_contacts
  * @property string|null $birthday
+ * @property string|null $phone
+ * @property string|null $telegram
  * @property string|null $info
+ * @property string|null $specializations
+ * @property string|null $avatar
+ * @property int|null $successful_tasks
+ * @property int|null $failed_tasks
+ * @property int $city_id
+ * @property int|null $vk_id
+ * @property int $hidden_contacts
+ * @property float $total_score
  * @property string|null $created_at
  * @property string|null $updated_at
  *
- * @property Category[] $categories
  * @property City $city
  * @property Response[] $responses
- * @property Review[] $reviews
- * @property Review[] $reviews0
- * @property Task[] $tasks
- * @property Task[] $tasks0
- * @property UserSpecialization[] $userSpecializations
+ * @property Review[] $customerReviews
+ * @property Review[] $executorReviews
+ * @property Task[] $customerTasks
+ * @property Task[] $executorTasks
+ * @property mixed|null $getExecutorReviews
  */
 class User extends ActiveRecord
 {
@@ -57,14 +60,16 @@ class User extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['avatar', 'telegram', 'phone', 'birthday', 'info'], 'default', 'value' => null],
-            [['show_contacts'], 'default', 'value' => 1],
-            [['name', 'email', 'password_hash', 'role', 'city_id'], 'required'],
+            [['birthday', 'phone', 'telegram', 'info', 'specializations', 'avatar', 'successful_tasks', 'failed_tasks', 'vk_id'], 'default', 'value' => null],
+            [['total_score'], 'default', 'value' => 0],
+            [['name', 'email', 'password', 'role', 'city_id'], 'required'],
             [['role', 'info'], 'string'],
-            [['city_id', 'show_contacts'], 'integer'],
             [['birthday', 'created_at', 'updated_at'], 'safe'],
-            [['name', 'email', 'password_hash', 'avatar', 'telegram'], 'string', 'max' => 255],
+            [['successful_tasks', 'failed_tasks', 'city_id', 'vk_id', 'hidden_contacts'], 'integer'],
+            [['total_score'], 'number'],
+            [['name', 'email', 'password', 'telegram'], 'string', 'max' => 128],
             [['phone'], 'string', 'max' => 11],
+            [['specializations', 'avatar'], 'string', 'max' => 255],
             ['role', 'in', 'range' => array_keys(self::optsRole())],
             [['email'], 'unique'],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
@@ -80,29 +85,23 @@ class User extends ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'email' => 'Email',
-            'password_hash' => 'Password Hash',
+            'password' => 'Password',
             'role' => 'Role',
-            'city_id' => 'City ID',
-            'avatar' => 'Avatar',
-            'telegram' => 'Telegram',
-            'phone' => 'Phone',
-            'show_contacts' => 'Show Contacts',
             'birthday' => 'Birthday',
+            'phone' => 'Phone',
+            'telegram' => 'Telegram',
             'info' => 'Info',
+            'specializations' => 'Specializations',
+            'avatar' => 'Avatar',
+            'successful_tasks' => 'Successful Tasks',
+            'failed_tasks' => 'Failed Tasks',
+            'city_id' => 'City ID',
+            'vk_id' => 'Vk ID',
+            'hidden_contacts' => 'Hidden Contacts',
+            'total_score' => 'Total Score',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
-    }
-
-    /**
-     * Gets query for [[Categories]].
-     *
-     * @return ActiveQuery
-     * @throws InvalidConfigException
-     */
-    public function getCategories(): ActiveQuery
-    {
-        return $this->hasMany(Category::class, ['id' => 'category_id'])->viaTable('user_specializations', ['user_id' => 'id']);
     }
 
     /**
@@ -126,53 +125,43 @@ class User extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Reviews]].
+     * Gets query for [[customerReviews]].
      *
      * @return ActiveQuery
      */
-    public function getReviews(): ActiveQuery
+    public function getCustomerReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['customer_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Reviews0]].
+     * Gets query for [[executorReviews]].
      *
      * @return ActiveQuery
      */
-    public function getReviews0(): ActiveQuery
+    public function getExecutorReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['executor_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks]].
+     * Gets query for [[customerTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks(): ActiveQuery
+    public function getCustomerTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['customer_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks0]].
+     * Gets query for [[executorTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks0(): ActiveQuery
+    public function getExecutorTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[UserSpecializations]].
-     *
-     * @return ActiveQuery
-     */
-    public function getUserSpecializations(): ActiveQuery
-    {
-        return $this->hasMany(UserSpecialization::class, ['user_id' => 'id']);
     }
 
 
@@ -221,4 +210,42 @@ class User extends ActiveRecord
     {
         $this->role = self::ROLE_EXECUTOR;
     }
+
+    public function getUserRating(): string
+    {
+        $sum = 0;
+        $reviews = $this->getExecutorReviews()->all();
+
+        foreach ($reviews as $review) {
+            $sum += $review['rating'] ?? 0;
+        }
+
+        if ($sum < 0) {
+            return 0;
+        }
+
+        if (count($reviews) + $this->failed_tasks) {
+            return round($sum / (count($reviews) + $this->failed_tasks), 2);
+        }
+
+        return 0;
+    }
+
+    public static function getUserStars($rating): string
+    {
+        $count = round($rating);
+        $filledStars = str_repeat('<span class="fill-star">&nbsp;</span>', $count);
+        $emptyStars = str_repeat('<span>&nbsp;</span>', 5 - $count);
+        return $filledStars . $emptyStars;
+    }
+
+    public function getUserStatus(): string
+    {
+        if (Task::findOne(['executor_id' => $this->id, 'status' => TaskBasic::STATUS_WORK])) {
+            return 'Занят';
+        }
+        return 'Открыт для новых заказов';
+    }
+
 }
+

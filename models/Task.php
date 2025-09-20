@@ -11,14 +11,15 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $title
- * @property string $description
+ * @property string|null $description
  * @property int $category_id
- * @property int|null $budget
+ * @property string|null $budget
  * @property string $status
  * @property int $city_id
+ * @property string|null $location
  * @property float|null $latitude
  * @property float|null $longitude
- * @property string|null $ended_at
+ * @property string|null $deadline
  * @property int $customer_id
  * @property int|null $executor_id
  * @property string|null $created_at
@@ -35,14 +36,6 @@ use yii\db\ActiveRecord;
 class Task extends ActiveRecord
 {
 
-    /**
-     * ENUM field values
-     */
-    const string STATUS_NEW = 'new';
-    const string STATUS_WORK = 'work';
-    const string STATUS_DONE = 'done';
-    const string STATUS_FAILED = 'failed';
-    const string STATUS_CANCELED = 'canceled';
 
     /**
      * {@inheritdoc}
@@ -58,15 +51,15 @@ class Task extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['budget', 'latitude', 'longitude', 'ended_at', 'executor_id'], 'default', 'value' => null],
+            [['description', 'budget', 'location', 'latitude', 'longitude', 'deadline', 'executor_id'], 'default', 'value' => null],
             [['status'], 'default', 'value' => 'new'],
-            [['title', 'description', 'category_id', 'city_id', 'customer_id'], 'required'],
-            [['description', 'status'], 'string'],
-            [['category_id', 'budget', 'city_id', 'customer_id', 'executor_id'], 'integer'],
+            [['title', 'category_id', 'city_id', 'customer_id'], 'required'],
+            [['description'], 'string'],
+            [['category_id', 'city_id', 'customer_id', 'executor_id'], 'integer'],
             [['latitude', 'longitude'], 'number'],
-            [['ended_at', 'created_at', 'updated_at'], 'safe'],
-            [['title'], 'string', 'max' => 255],
-            ['status', 'in', 'range' => array_keys(self::optsStatus())],
+            [['deadline', 'created_at', 'updated_at'], 'safe'],
+            [['title', 'location'], 'string', 'max' => 255],
+            [['budget', 'status'], 'string', 'max' => 128],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['customer_id' => 'id']],
@@ -87,9 +80,10 @@ class Task extends ActiveRecord
             'budget' => 'Budget',
             'status' => 'Status',
             'city_id' => 'City ID',
+            'location' => 'Location',
             'latitude' => 'Latitude',
             'longitude' => 'Longitude',
-            'ended_at' => 'Ended At',
+            'deadline' => 'Deadline',
             'customer_id' => 'Customer ID',
             'executor_id' => 'Executor ID',
             'created_at' => 'Created At',
@@ -167,92 +161,4 @@ class Task extends ActiveRecord
         return $this->hasMany(Review::class, ['task_id' => 'id']);
     }
 
-
-    /**
-     * column status ENUM value labels
-     * @return string[]
-     */
-    public static function optsStatus(): array
-    {
-        return [
-            self::STATUS_NEW => 'new',
-            self::STATUS_WORK => 'work',
-            self::STATUS_DONE => 'done',
-            self::STATUS_FAILED => 'failed',
-            self::STATUS_CANCELED => 'canceled',
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function displayStatus(): string
-    {
-        return self::optsStatus()[$this->status];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusNew(): bool
-    {
-        return $this->status === self::STATUS_NEW;
-    }
-
-    public function setStatusToNew(): void
-    {
-        $this->status = self::STATUS_NEW;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusWork(): bool
-    {
-        return $this->status === self::STATUS_WORK;
-    }
-
-    public function setStatusToWork(): void
-    {
-        $this->status = self::STATUS_WORK;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusDone(): bool
-    {
-        return $this->status === self::STATUS_DONE;
-    }
-
-    public function setStatusToDone(): void
-    {
-        $this->status = self::STATUS_DONE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusFailed(): bool
-    {
-        return $this->status === self::STATUS_FAILED;
-    }
-
-    public function setStatusToFailed(): void
-    {
-        $this->status = self::STATUS_FAILED;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusCanceled(): bool
-    {
-        return $this->status === self::STATUS_CANCELED;
-    }
-
-    public function setStatusToCanceled(): void
-    {
-        $this->status = self::STATUS_CANCELED;
-    }
 }
