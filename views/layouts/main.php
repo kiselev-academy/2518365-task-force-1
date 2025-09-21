@@ -59,7 +59,9 @@ if (Yii::$app->user->isGuest) {
                     </ul>
                 </div>
         </nav>
-        <?php if (!Yii::$app->user->isGuest): ?>
+        <?php if (!Yii::$app->user->isGuest):
+            $user = Yii::$app->user->identity;
+        ?>
         <div class="user-block">
                 <a href="#">
                     <img class="user-photo" src="/img/<?= $user->avatar; ?>" width="55" height="55" alt="Аватар">

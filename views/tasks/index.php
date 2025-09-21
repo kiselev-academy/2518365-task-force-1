@@ -23,7 +23,7 @@ $this->title = 'Taskforce';
             <?php foreach ($tasks as $task): ?>
                 <div class="task-card">
                     <div class="header-task">
-                        <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?> ?>"
+                        <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>"
                            class="link link--block link--big"><?= Html::encode($task->title) ?></a>
                         <p class="price price--task"><?= Html::encode($task->budget) ?>&nbsp;₽</p>
                     </div>

@@ -203,7 +203,6 @@ $this->title = 'Taskforce';
         <?php $form = ActiveForm::begin([
             'id' => 'login-form',
             'method' => 'post',
-            'enableAjaxValidation' => true,
             'fieldConfig' => [
                 'template' => "{label}{input}\n{error}",
             ],

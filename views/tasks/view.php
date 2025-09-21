@@ -31,7 +31,7 @@ $this->title = "Taskforce";
             <?= $task->city->name ?? 'Удаленная работа' ?>
         </p>
         <?php if (!empty($task->city->name)): ?>
-            <p class="map-address">Новый арбат, 23, к. 1<</p>
+            <p class="map-address">Новый арбат, 23, к. 1</p>
         <?php endif; ?>
     </div>
 

@@ -11,7 +11,7 @@ class LoginForm extends Model
     public string $email = '';
     public string $password = '';
 
-    private ?User $_user;
+    private ?User $_user = null;
 
     public function attributeLabels(): array
     {
