@@ -7,9 +7,8 @@ use app\models\forms\RegistrationForm;
 use Yii;
 use yii\base\InvalidRouteException;
 use yii\db\Exception;
-use yii\web\Controller;
 
-class RegistrationController extends Controller
+class RegistrationController extends NotSecuredController
 {
     /**
      * @throws Exception

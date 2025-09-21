@@ -6,11 +6,10 @@ use app\models\Category;
 use app\models\Task;
 use app\models\TaskSearch;
 use yii\helpers\ArrayHelper;
-use yii\web\Controller;
 use app\models\forms\TasksFilter;
 use yii\web\NotFoundHttpException;
 
-class TasksController extends Controller
+class TasksController extends SecuredController
 {
     public function actionIndex(?int $category = null): string
     {

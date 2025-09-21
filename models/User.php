@@ -3,8 +3,10 @@
 namespace app\models;
 
 use TaskForce\Models\Task as TaskBasic;
+use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "users".
@@ -37,7 +39,7 @@ use yii\db\ActiveRecord;
  * @property Task[] $executorTasks
  * @property mixed|null $getExecutorReviews
  */
-class User extends ActiveRecord
+class User extends ActiveRecord implements IdentityInterface
 {
 
     /**
@@ -211,6 +213,38 @@ class User extends ActiveRecord
         $this->role = self::ROLE_EXECUTOR;
     }
 
+    public static function getCurrentUser(): ?User
+    {
+        return User::findOne(Yii::$app->user->getId());
+    }
+
+    public static function findIdentity($id): User|IdentityInterface|null
+    {
+        return self::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+    }
+
+    public function validateAuthKey($authKey)
+    {
+    }
+
+    public function validatePassword($password): bool
+    {
+        return Yii::$app->security->validatePassword($password, $this->password);
+    }
+
     public function getUserRating(): string
     {
         $sum = 0;
@@ -248,4 +282,3 @@ class User extends ActiveRecord
     }
 
 }
-

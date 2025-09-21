@@ -23,7 +23,7 @@ $this->title = 'Taskforce';
             <?php foreach ($tasks as $task): ?>
                 <div class="task-card">
                     <div class="header-task">
-                        <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>"
+                        <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?> ?>"
                            class="link link--block link--big"><?= Html::encode($task->title) ?></a>
                         <p class="price price--task"><?= Html::encode($task->budget) ?>&nbsp;₽</p>
                     </div>
@@ -38,7 +38,7 @@ $this->title = 'Taskforce';
                             <?= $task->city->name ?? 'Удаленная работа' ?>
                         </p>
                         <p class="info-text category-text"><?= $task->category->name ?></p>
-                        <a href="<?= Url::to(['tasks/view', 'id' => $task->id]) ?>" class="button button--black">Смотреть
+                        <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>" class="button button--black">Смотреть
                             задание</a>
                     </div>
                 </div>
