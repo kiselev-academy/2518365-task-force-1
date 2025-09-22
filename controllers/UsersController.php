@@ -7,7 +7,7 @@ use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
-class UsersController extends SecuredController
+class UsersController extends AuthorizedController
 {
     /**
      * @throws NotFoundHttpException

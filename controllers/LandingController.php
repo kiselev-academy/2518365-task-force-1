@@ -7,7 +7,7 @@ use Yii;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 
-class LandingController extends NotSecuredController
+class LandingController extends GuestController
 {
     public $layout = 'landing';
 
@@ -15,22 +15,29 @@ class LandingController extends NotSecuredController
     {
         $loginForm = new LoginForm();
 
-        if (Yii::$app->request->getIsPost()) {
-            $loginForm->load(Yii::$app->request->post());
-
-            if (Yii::$app->request->isAjax) {
-                Yii::$app->response->format = Response::FORMAT_JSON;
-                return ActiveForm::validate($loginForm);
-            }
-
-            if ($loginForm->validate()) {
-                $user = $loginForm->getUser();
-                Yii::$app->user->login($user);
-
-                return $this->redirect(['/tasks']);
-            }
+        if (!Yii::$app->request->getIsPost()) {
+            return $this->render('index', ['login' => $loginForm]);
         }
 
-        return $this->render('index', ['login' => $loginForm]);
+        $loginForm->load(Yii::$app->request->post());
+
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($loginForm);
+        }
+
+        if ($loginForm->validate() === false) {
+            return $this->render('index', ['login' => $loginForm]);
+        }
+
+        $user = $loginForm->getUser();
+
+        if (null === $user) {
+            return $this->render('index', ['login' => $loginForm]);
+        }
+
+        Yii::$app->user->login($user);
+
+        return $this->redirect(['/tasks']);
     }
 }

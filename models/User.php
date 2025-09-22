@@ -4,6 +4,7 @@ namespace app\models;
 
 use TaskForce\Models\Task as TaskBasic;
 use Yii;
+use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -223,8 +224,12 @@ class User extends ActiveRecord implements IdentityInterface
         return self::findOne($id);
     }
 
+    /**
+     * @throws NotSupportedException
+     */
     public static function findIdentityByAccessToken($token, $type = null)
     {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
 
     public function getId(): int
@@ -232,12 +237,14 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->id;
     }
 
-    public function getAuthKey()
+    public function getAuthKey(): string
     {
+        return Yii::$app->getSecurity()->generatePasswordHash($this->id . $this->password);
     }
 
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): bool
     {
+        return Yii::$app->getSecurity()->validatePassword($this->id . $this->password, $authKey);
     }
 
     public function validatePassword($password): bool

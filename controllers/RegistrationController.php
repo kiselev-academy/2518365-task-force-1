@@ -8,7 +8,7 @@ use Yii;
 use yii\base\InvalidRouteException;
 use yii\db\Exception;
 
-class RegistrationController extends NotSecuredController
+class RegistrationController extends GuestController
 {
     /**
      * @throws Exception

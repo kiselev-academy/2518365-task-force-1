@@ -9,7 +9,7 @@ use yii\helpers\ArrayHelper;
 use app\models\forms\TasksFilter;
 use yii\web\NotFoundHttpException;
 
-class TasksController extends SecuredController
+class TasksController extends AuthorizedController
 {
     public function actionIndex(?int $category = null): string
     {

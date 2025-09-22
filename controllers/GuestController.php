@@ -5,7 +5,7 @@ namespace app\controllers;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 
-abstract class NotSecuredController extends Controller
+abstract class GuestController extends Controller implements RulesInterface
 {
     public function behaviors(): array
     {
@@ -15,12 +15,17 @@ abstract class NotSecuredController extends Controller
                 'denyCallback' => function () {
                     return $this->redirect('/tasks');
                 },
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['?'],
-                    ],
-                ],
+                'rules' => $this->getRules(),
+            ],
+        ];
+    }
+
+    public function getRules(): array
+    {
+        return [
+            [
+                'allow' => true,
+                'roles' => ['?'],
             ],
         ];
     }

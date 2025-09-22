@@ -41,11 +41,13 @@ class LoginForm extends Model
 
     public function validatePassword($attribute, $params): void
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
-            if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
-                $this->addError($attribute, 'Неправильный email или пароль');
-            }
+        if ($this->hasErrors()) {
+            return;
+        }
+
+        $user = $this->getUser();
+        if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
+            $this->addError($attribute, 'Неправильный email или пароль');
         }
     }
 }
