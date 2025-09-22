@@ -3,10 +3,11 @@
 namespace app\controllers;
 
 use app\models\User;
-use yii\web\Controller;
+use Yii;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
-class UsersController extends Controller
+class UsersController extends AuthorizedController
 {
     /**
      * @throws NotFoundHttpException
@@ -18,5 +19,11 @@ class UsersController extends Controller
             throw new NotFoundHttpException('Пользователя с ID $id не найдено');
         }
         return $this->render('view', compact('user'));
+    }
+
+    public function actionLogout(): Response
+    {
+        Yii::$app->user->logout();
+        return $this->goHome();
     }
 }

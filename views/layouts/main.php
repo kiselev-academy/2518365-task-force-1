@@ -5,11 +5,15 @@
 /** @var string $content */
 
 use app\assets\AppAsset;
+use app\assets\MainAsset;
+use app\models\User;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 AppAsset::register($this);
+MainAsset::register($this);
 
 $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
@@ -17,9 +21,11 @@ $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, 
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? '']);
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
-$this->registerCssFile('@web/css/style.css');
-$this->registerCssFile('@web/css/normalize.css');
+if (Yii::$app->user->isGuest) {
+    $user = User::getCurrentUser();
+}
 ?>
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
@@ -39,7 +45,7 @@ $this->registerCssFile('@web/css/normalize.css');
                 <div class="nav-wrapper">
                     <ul class="nav-list">
                         <li class="list-item list-item--active">
-                            <a class="link link--nav">Новое</a>
+                            <a href="<?=Url::to(['/tasks'])?>" class="link link--nav">Новое</a>
                         </li>
                         <li class="list-item">
                             <a href="#" class="link link--nav">Мои задания</a>
@@ -53,13 +59,15 @@ $this->registerCssFile('@web/css/normalize.css');
                     </ul>
                 </div>
         </nav>
-        <?php if (!Yii::$app->user->isGuest): ?>
+        <?php if (!Yii::$app->user->isGuest):
+            $user = Yii::$app->user->identity;
+        ?>
         <div class="user-block">
-            <a href="#">
-                <img class="user-photo" src="img/man-glasses.png" width="55" height="55" alt="Аватар">
-            </a>
+                <a href="#">
+                    <img class="user-photo" src="/img/<?= $user->avatar; ?>" width="55" height="55" alt="Аватар">
+                </a>
             <div class="user-menu">
-                <p class="user-name">Василий</p>
+                <p class="user-name"><?=$user->name?></p>
                 <div class="popup-head">
                     <ul class="popup-menu">
                         <li class="menu-item">
@@ -69,7 +77,7 @@ $this->registerCssFile('@web/css/normalize.css');
                             <a href="#" class="link">Связаться с нами</a>
                         </li>
                         <li class="menu-item">
-                            <a href="#" class="link">Выход из системы</a>
+                            <a href="<?=Url::to(['/users/logout'])?>" class="link">Выход из системы</a>
                         </li>
 
                     </ul>
