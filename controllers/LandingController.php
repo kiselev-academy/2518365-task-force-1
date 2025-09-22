@@ -15,7 +15,8 @@ class LandingController extends GuestController
     {
         $loginForm = new LoginForm();
 
-        if (!Yii::$app->request->getIsPost()) {
+
+        if (!Yii::$app->request->isPost) {
             return $this->render('index', ['login' => $loginForm]);
         }
 
