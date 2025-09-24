@@ -5,8 +5,6 @@ use yii\helpers\ArrayHelper;
 
 $this->title = 'Taskforce';
 
-$categoriesQuery = Category::find()->select(['id', 'name'])->all();
-$categories = ArrayHelper::map($categoriesQuery, 'id', 'name');
 ?>
 
 <main class="main-content main-content--center container">
