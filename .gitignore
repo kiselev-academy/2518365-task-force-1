@@ -34,3 +34,6 @@ tests/_support/_generated
 
 #openserver
 .osp/
+
+#uploaded files
+/web/uploads

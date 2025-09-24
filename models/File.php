@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -68,4 +67,11 @@ class File extends ActiveRecord
         return $this->hasOne(Task::class, ['id' => 'task_id']);
     }
 
+    public static function saveFile($path, $taskId): void
+    {
+        $newFile = new self;
+        $newFile->path = $path;
+        $newFile->task_id = $taskId;
+        $newFile->save(false);
+    }
 }
