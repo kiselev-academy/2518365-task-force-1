@@ -4,6 +4,7 @@ use app\models\Category;
 use app\models\User;
 use app\models\widgets\RatingWidget;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 
 $this->title = "Taskforce";
@@ -66,7 +67,7 @@ if (!empty($user)) {
                         <p class="feedback">
                             <?= Html::encode($review->comment) ?>
                         </p>
-                        <p class="task">Задание «<a href="/tasks/view/<?= $review->task->id ?>"
+                        <p class="task">Задание «<a href="<?=Url::toRoute(['/tasks/view/', 'id' => $review->task->id])?>"
                                                     class="link link--small"><?= Html::encode($review->task->title) ?></a>»
                             выполнено</p>
                     </div>

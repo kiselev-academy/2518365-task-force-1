@@ -46,3 +46,27 @@ if (buttonInput) {
         }
     });
 }
+
+const ratingView = document.querySelector(".active-stars");
+
+if (ratingView) {
+    ratingView.addEventListener("click", event => {
+        const stars = Array.from(ratingView.children);
+        const clickedStar = event.target;
+
+        stars.forEach(star => star.classList.remove("fill-star"));
+
+        const index = stars.indexOf(clickedStar);
+
+        if (index === -1) return;
+
+        for (let i = 0; i <= index; i++) {
+            stars[i].classList.add("fill-star");
+        }
+
+        const inputField = document.getElementById('acceptance-form-rate');
+        if (inputField) {
+            inputField.value = index + 1;
+        }
+    });
+}

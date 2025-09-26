@@ -5,6 +5,8 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use TaskForce\Models\Task as TaskBasic;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "tasks".
@@ -35,7 +37,33 @@ use yii\db\ActiveRecord;
  */
 class Task extends ActiveRecord
 {
+    /**
+     * @throws Exception
+     */
+    public function startWork(int $executorId): bool
+    {
+        $this->status = TaskBasic::STATUS_WORK;
+        $this->executor_id = $executorId;
+        return $this->save();
+    }
 
+    /**
+     * @throws Exception
+     */
+    public function failTask(): bool
+    {
+        $this->status = TaskBasic::STATUS_FAILED;
+        return $this->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function cancelTask(): bool
+    {
+        $this->status = TaskBasic::STATUS_CANCELLED;
+        return $this->save();
+    }
 
     /**
      * {@inheritdoc}
