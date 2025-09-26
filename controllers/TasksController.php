@@ -18,7 +18,6 @@ use app\models\forms\TasksFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yii\web\ServerErrorHttpException;
 
 class TasksController extends AuthorizedController
 {
@@ -110,7 +109,6 @@ class TasksController extends AuthorizedController
     /**
      * @throws InvalidRouteException
      * @throws NotFoundHttpException
-     * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
      * @throws Exception
      */
