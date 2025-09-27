@@ -1,6 +1,7 @@
 <?php
 
 namespace app\models\forms;
+
 use app\models\Response;
 use app\models\User;
 use TaskForce\Models\Task as TaskBasic;
@@ -14,18 +15,21 @@ class UserView
      * @param int $customerId ID заказчика задания
      * @return bool true, если пользователь может просмотреть список, false - в противном случае.
      */
-    public static function isViewResponsesList(array $responses, int $userId, int $customerId): bool {
-        if ($responses) {
-            if ($userId === $customerId) {
+    public static function isViewResponsesList(array $responses, int $userId, int $customerId): bool
+    {
+        if (!$responses) {
+            return false;
+        }
+        if ($userId === $customerId) {
+            return true;
+        }
+        foreach ($responses as $response) {
+            if ($userId === $response->executor_id) {
                 return true;
-            }
-            foreach ($responses as $response) {
-                if ($userId === $response->executor_id) {
-                    return true;
-                }
             }
         }
         return false;
+
     }
 
     /**
@@ -35,7 +39,8 @@ class UserView
      * @param int $executorId ID исполнителя, оставившего отклик на задание
      * @return bool true, если пользователь может просмотреть отклик, false - в противном случае.
      */
-    public static function isViewResponse(int $userId, int $customerId, int $executorId): bool {
+    public static function isViewResponse(int $userId, int $customerId, int $executorId): bool
+    {
         return $userId === $customerId || $userId === $executorId;
     }
 
@@ -47,7 +52,8 @@ class UserView
      * @param string $responseStatus статус отклика на задание
      * @return bool true, если пользователь может просмотреть кнопки в отклике, false - в противном случае.
      */
-    public static function isViewResponseButtons(int $userId, int $customerId, string $taskStatus, string $responseStatus): bool {
+    public static function isViewResponseButtons(int $userId, int $customerId, string $taskStatus, string $responseStatus): bool
+    {
         return $userId === $customerId && $responseStatus === Response::STATUS_NEW && $taskStatus === TaskBasic::STATUS_NEW;
     }
 
@@ -62,15 +68,16 @@ class UserView
      */
     public static function isViewResponseButton(int $userId, string $userRole, string $taskStatus, array $responses): bool
     {
-        if ($userRole === User::ROLE_EXECUTOR && $taskStatus === TaskBasic::STATUS_NEW) {
-            foreach ($responses as $response) {
-                if ($userId === $response->executor_id) {
-                    return false;
-                }
-            }
-            return true;
+        if ($userRole !== User::ROLE_EXECUTOR || $taskStatus !== TaskBasic::STATUS_NEW) {
+            return false;
         }
-        return false;
+
+        foreach ($responses as $response) {
+            if ($userId === $response->executor_id) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

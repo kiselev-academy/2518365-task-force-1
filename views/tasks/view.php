@@ -3,7 +3,8 @@
 use app\assets\MainAsset;
 use app\models\forms\UserView;
 use app\models\User;
-use app\models\widgets\RatingWidget;
+use app\models\widgets\FileListWidget;
+use app\models\widgets\ResponseCardWidget;
 use TaskForce\Models\Task as TaskBasic;
 use yii\helpers\Html;use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -18,10 +19,10 @@ if (!Yii::$app->user->isGuest) {
 }
 
 ?>
+<?php if (!empty($task)): ?>
 <main class="main-content container">
 <div class="left-column">
     <div class="head-wrapper">
-        <?php if (!empty($task)): ?>
         <h3 class="head-main"><?= Html::encode($task->title) ?></h3>
         <p class="price price--big"><?= Html::encode(Yii::$app->formatter->asCurrency($task->budget)) ?? '' ?></p>
     </div>
@@ -54,47 +55,15 @@ if (!Yii::$app->user->isGuest) {
         <?php endif; ?>
     </div>
 
-    <?php if ($task->responses): ?>
-    <?php if (UserView::isViewResponsesList($task->responses, $user->id, $task->customer_id)): ?>
+    <?php if ($task->responses && UserView::isViewResponsesList($task->responses, $user->id, $task->customer_id)): ?>
         <h4 class="head-regular">Отклики на задание</h4>
         <?php foreach ($task->responses as $response): ?>
-        <?php if (UserView::isViewResponse($user->id, $task->customer_id, $response->executor_id)): ?>
-            <div class="response-card">
-                <?php if($response->executor->avatar):?>
-                <img class="customer-photo" src="<?= $response->executor->avatar ?>" width="146" height="156"
-                     alt="Фото исполнителя">
-                <?php endif;?>
-                <div class="feedback-wrapper">
-                    <a href="<?=Url::toRoute(['/users/view/', 'id' => $response->executor->id])?>"
-                       class="link link--block link--big"><?= Html::encode($response->executor->name) ?></a>
-                    <div class="response-wrapper">
-                        <div class="stars-rating small">
-                            <?= RatingWidget::widget(['rating' => $response->executor->getUserRating()]) ?>
-                        </div>
-                        <p class="reviews">
-                            <?= Yii::t('app', '{n, plural, =0{# отзывов} one{# отзыв} =2{# отзыва} =3{# отзыва} =4{# отзыва} few{# отзыва} many{# отзывов} other{# отзывов}}', ['n' => $response->executor->getExecutorReviews()->count()]); ?>
-                        </p>
-                    </div>
-                    <p class="response-message">
-                        <?= Html::encode($response->comment) ?>
-                    </p>
-                </div>
-                <div class="feedback-wrapper">
-                    <p class="info-text"><span class="current-time">
-                            <?= Yii::$app->formatter->format($response->created_at, 'relativeTime') ?>
-                    </p>
-                    <p class="price price--small"><?= Html::encode(Yii::$app->formatter->asCurrency($response->price)) ?? '' ?>&nbsp;₽</p>
-                </div>
-                <?php if (UserView::isViewResponseButtons($user->id, $task->customer_id, $task->status, $response->status)): ?>
-                <div class="button-popup">
-                    <a href="<?= Url::toRoute(['/tasks/accept', 'responseId' => $response->id, 'taskId' => $task->id, 'executorId' => $response->executor->id]) ?>" class="button button--blue button--small">Принять</a>
-                    <a href="<?= Url::toRoute(['/tasks/refuse', 'responseId' => $response->id]) ?>" class="button button--orange button--small">Отказать</a>
-                </div>
-                <?php endif;?>
-            </div>
-            <?php endif; ?>
+            <?= ResponseCardWidget::widget([
+                'user' => $user,
+                'task' => $task,
+                'response' => $response,
+            ]) ?>
         <?php endforeach; ?>
-    <?php endif; ?>
     <?php endif; ?>
 
 </div>
@@ -116,25 +85,9 @@ if (!Yii::$app->user->isGuest) {
             <dd><?= TaskBasic::getStatusName($task->status) ?></dd>
         </dl>
     </div>
-    <?php if ($files): ?>
-        <div class="right-card white file-card">
-            <h4 class="head-card">Файлы задания</h4>
-            <ul class="enumeration-list">
-                <?php foreach ($files as $file): ?>
-                    <li class="enumeration-item">
-                        <a href="<?=Yii::$app->urlManager->baseUrl.$file->path?>" class="link link--block link--clip">
-                            <?=str_replace('/uploads/', '', $file->path)?>
-                        </a>
-                        <p class="file-size">
-                            <?= Yii::$app->formatter->asShortSize(
-                                filesize(Yii::getAlias('@webroot').$file->path)
-                            )?>
-                        </p>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
+    <?= FileListWidget::widget([
+        'files' => $files,
+    ]) ?>
 </div>
 </main>
 <section class="pop-up pop-up--refusal pop-up--close">

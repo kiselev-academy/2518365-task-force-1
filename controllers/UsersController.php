@@ -16,7 +16,7 @@ class UsersController extends AuthorizedController
     {
         $user = User::findOne($id);
         if (!$user) {
-            throw new NotFoundHttpException('Пользователя с ID $id не найдено');
+            throw new NotFoundHttpException("Пользователя с ID $id не найдено");
         }
         return $this->render('view', compact('user'));
     }

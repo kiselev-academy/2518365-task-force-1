@@ -2,12 +2,12 @@
 
 namespace app\models\forms;
 
-use Yii;
-use yii\base\Model;
-use yii\db\Exception;
 use app\models\Review;
 use app\models\Task;
 use Taskforce\Models\Task as TaskBasic;
+use Yii;
+use yii\base\Model;
+use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 
 class NewReviewForm extends Model
@@ -49,17 +49,19 @@ class NewReviewForm extends Model
      */
     public function createReview(int $taskId, int $executorId): bool
     {
-        if ($this->validate()) {
-            $newReview = $this->newReview($taskId, $executorId);
-            $newReview->save(false);
-
-            $task = Task::findOne($taskId);
-            $task->status = TaskBasic::STATUS_COMPLETED;
-            if (!$task->save()) {
-                throw new BadRequestHttpException('Не получилось сохранить данные');
-            }
-            return true;
+        if (!$this->validate()) {
+            return false;
         }
-        return false;
+
+        $newReview = $this->newReview($taskId, $executorId);
+        $newReview->save(false);
+
+        $task = Task::findOne($taskId);
+        $task->status = TaskBasic::STATUS_COMPLETED;
+        if (!$task->save()) {
+            throw new BadRequestHttpException('Не получилось сохранить данные');
+        }
+        return true;
+
     }
 }
