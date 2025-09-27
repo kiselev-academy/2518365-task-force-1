@@ -25,7 +25,7 @@ $this->title = 'Taskforce';
                     <div class="header-task">
                         <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>"
                            class="link link--block link--big"><?= Html::encode($task->title) ?></a>
-                        <p class="price price--task"><?= Html::encode($task->budget) ?>&nbsp;₽</p>
+                        <p class="price price--task"><?= Html::encode(Yii::$app->formatter->asCurrency($task->budget)) ?? '' ?></p>
                     </div>
                     <p class="info-text">
                         <?= Yii::$app->formatter->format($task->created_at, 'relativeTime') ?>

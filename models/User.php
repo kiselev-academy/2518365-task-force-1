@@ -7,6 +7,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\web\IdentityInterface;
 
 /**
@@ -270,6 +271,24 @@ class User extends ActiveRecord implements IdentityInterface
         }
 
         return 0;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getCounterCompletedTasks(): bool
+    {
+        $this->successful_tasks += 1;
+        return $this->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getCounterFailedTasks(): bool
+    {
+        $this->failed_tasks += 1;
+        return $this->save();
     }
 
     public static function getUserStars($rating): string

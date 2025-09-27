@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "responses".
@@ -23,7 +24,27 @@ use yii\db\ActiveRecord;
  */
 class Response extends ActiveRecord
 {
+    const string STATUS_NEW = 'new';
+    const string STATUS_REJECTED = 'rejected';
+    const string STATUS_ACCEPTED = 'accepted';
 
+    /**
+     * @throws Exception
+     */
+    public function accept(): bool
+    {
+        $this->status = self::STATUS_ACCEPTED;
+        return $this->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function reject(): bool
+    {
+        $this->status = self::STATUS_REJECTED;
+        return $this->save();
+    }
 
     /**
      * {@inheritdoc}
