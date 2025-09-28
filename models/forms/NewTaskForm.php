@@ -3,8 +3,10 @@
 namespace app\models\forms;
 
 use app\models\Category;
+use app\models\City;
 use app\models\File;
 use app\models\Task;
+use app\services\Geocoder;
 use TaskForce\Models\Task as TaskBasic;
 use Yii;
 use yii\base\Model;
@@ -44,6 +46,7 @@ class NewTaskForm extends Model
                 'operator' => '>', 'type' => 'date',
                 'message' => 'Срок выполнения не может быть в прошлом'],
             [['files'], 'file', 'maxFiles' => 0],
+            ['location', \app\models\validators\LocationValidator::class],
         ];
     }
 
@@ -53,6 +56,16 @@ class NewTaskForm extends Model
         $task->title = $this->title;
         $task->description = $this->description;
         $task->category_id = $this->category;
+
+        if ($this->location) {
+            $locationData = Geocoder::getLocationData($this->location);
+
+            $task->city_id = City::findOne(['name' => $locationData['city']])->id;
+            $task->location = $locationData['address'];
+            $task->longitude = $locationData['coordinates'][0];
+            $task->latitude = $locationData['coordinates'][1];
+        }
+
         $task->budget = $this->budget;
         $task->deadline = $this->deadline;
         $task->status = TaskBasic::STATUS_NEW;
