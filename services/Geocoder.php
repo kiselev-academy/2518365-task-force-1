@@ -6,6 +6,8 @@ namespace app\services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use http\Exception\RuntimeException;
+use Yii;
 
 class Geocoder
 {
@@ -19,69 +21,71 @@ class Geocoder
      *  - 'address' - адрес объекта;
      *  - 'allData' - все данные в формате ['coordinates' => [...], 'city' => string|null, 'address' => string|null].
      * @return null|string|array Массив или строка с данными, или null если данные не найдены.
-     * @throws \Exception При ошибках запроса или парсинга.
+     * @throws GuzzleException При ошибках запроса.
+     * @throws \JsonException При ошибках парсинга.
      * @throws \InvalidArgumentException При недопустимом формате.
      */
     public static function getLocationData(string $location, string $format = 'allData'): null|string|array
     {
-        $apiKey = 'cad6a4b5-acf7-468c-8151-528b41621e77';
+        $apiKey = Yii::$app->params['ymaps']['apiKey'];
+        if (empty($apiKey)) {
+            throw new RuntimeException("Не указан параметр ключа яндекс карт");
+        }
 
         $client = new Client([
             'base_uri' => 'https://geocode-maps.yandex.ru/',
             'timeout' => 5.0,
         ]);
 
-        try {
-            $response = $client->request('GET', '1.x', [
-                'query' => [
-                    'geocode' => $location,
-                    'apikey' => $apiKey,
-                    'format' => 'json',
-                    'results' => 1,
-                ],
-            ]);
-        } catch (GuzzleException $error) {
-            throw new \Exception('Ошибка при запросе к API: ' . $error->getMessage());
-        }
+        $response = $client->request('GET', '1.x', [
+            'query' => [
+                'geocode' => $location,
+                'apikey' => $apiKey,
+                'format' => 'json',
+                'results' => 1,
+            ],
+        ]);
 
         $content = (string)$response->getBody();
-        $responseData = json_decode($content, true);
+        $responseData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Ошибка парсинга JSON:  ' . json_last_error_msg());
-        }
 
         $featureMember = $responseData['response']['GeoObjectCollection']['featureMember'] ?? null;
 
-        if (empty($featureMember) || !isset($featureMember[0]['GeoObject'])) {
+        if (empty($featureMember) || empty($key = array_key_first($featureMember)) || !isset($featureMember[$key]['GeoObject'])) {
             return null;
         }
 
-        $geoObject = $featureMember[0]['GeoObject'];
+        $key = array_key_first($featureMember);
+        $geoObject = $featureMember[$key]['GeoObject'];
 
-        $posString = $geoObject['Point']['pos'] ?? '';
-        if (!$posString) {
+        $posString = $geoObject['Point']['pos'] ?? null;
+        if (empty($posString) || !is_string($posString)) {
             return null;
         }
-        [$longitude, $latitude] = explode(' ', $posString);
+
+        $arr = explode(' ', $posString);
+        if (count($arr) !== 2) {
+            throw new RuntimeException('Некорректно получены широта и долгота');
+        }
+        [$longitude, $latitude] = $arr;
 
         $latitude = (float)$latitude;
         $longitude = (float)$longitude;
 
-        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea'] ?? null;
-
+        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['Address'] ?? null;
         $city = null;
-        if (is_array($addressDetails)) {
-            $city = self::getCityName($addressDetails);
+        if ($addressDetails && isset($addressDetails['AddressDetails'])) {
+            $city = self::getCityName($addressDetails['AddressDetails']);
         }
 
         $address = $geoObject['name'] ?? null;
 
         return match ($format) {
-            'coordinates' => [$longitude, $latitude],
+            'coordinates' => [$latitude, $longitude],
             'city' => $city,
             'address' => $address,
-            'allData' => ['coordinates' => [$longitude, $latitude], 'city' => $city, 'address' => $address],
+            'allData' => ['coordinates' => [$latitude, $longitude], 'city' => $city, 'address' => $address],
             default => throw new \InvalidArgumentException('Недопустимый формат данных: ' . $format),
         };
     }
@@ -95,18 +99,19 @@ class Geocoder
      */
     public static function getCityName(array $array): ?string
     {
+        if (isset($array['LocalityName']) && is_string($array['LocalityName'])) {
+            return $array['LocalityName'];
+        }
+        if (isset($array['AdministrativeAreaName']) && is_string($array['AdministrativeAreaName'])) {
+            return $array['AdministrativeAreaName'];
+        }
         foreach ($array as $key => $value) {
-            if ($key === 'LocalityName' && is_string($value)) {
-                return $value;
-            }
-
-            if (is_array($value) && ($result = self::getCityName($value)) !== null) {
-                return $result;
+            if (is_array($value)) {
+                if ($result = self::getCityName($value)) {
+                    return $result;
+                }
             }
         }
-
-        return isset($array['AdministrativeAreaName']) && is_string($array['AdministrativeAreaName'])
-            ? $array['AdministrativeAreaName']
-            : null;
+        return null;
     }
 }

@@ -37,3 +37,6 @@ tests/_support/_generated
 
 #uploaded files
 /web/uploads
+
+#config files
+/config/*.local.php
