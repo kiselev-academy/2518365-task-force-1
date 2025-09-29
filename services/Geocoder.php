@@ -99,19 +99,18 @@ class Geocoder
      */
     public static function getCityName(array $array): ?string
     {
-        if (isset($array['LocalityName']) && is_string($array['LocalityName'])) {
-            return $array['LocalityName'];
-        }
-        if (isset($array['AdministrativeAreaName']) && is_string($array['AdministrativeAreaName'])) {
-            return $array['AdministrativeAreaName'];
-        }
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                if ($result = self::getCityName($value)) {
-                    return $result;
-                }
+            if ($key === 'LocalityName' && is_string($value)) {
+                return $value;
+            }
+
+            if (is_array($value) && ($result = self::getCityName($value)) !== null) {
+                return $result;
             }
         }
-        return null;
+
+        return isset($array['AdministrativeAreaName']) && is_string($array['AdministrativeAreaName'])
+            ? $array['AdministrativeAreaName']
+            : null;
     }
 }
