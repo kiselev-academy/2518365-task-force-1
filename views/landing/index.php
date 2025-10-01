@@ -1,6 +1,7 @@
 <?php
 
 
+use yii\authclient\widgets\AuthChoice;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
@@ -222,5 +223,9 @@ $this->title = 'Taskforce';
         <button class="button" type="submit">Войти</button>
         <?php ActiveForm::end(); ?>
         <button class="form-modal-close" type="button">Закрыть</button>
+        <?= AuthChoice::widget([
+            'baseAuthUrl' => ['auth/vk'],
+            'popupMode' => false,
+        ]) ?>
     </section>
 </div>

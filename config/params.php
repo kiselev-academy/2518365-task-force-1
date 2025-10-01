@@ -7,6 +7,12 @@ $default = [
     'ymaps' => [
         'apiKey' => 'YOUR API KEY',
     ],
+    'authClients' => [
+        'vkontakte' => [
+            'clientId' => 'YOUR ID KEY HERE',
+            'clientSecret' => 'YOUR SECRET KEY',
+        ],
+    ],
 ];
 
 $redeclared = require __DIR__ . DIRECTORY_SEPARATOR . 'params.local.php';

@@ -73,7 +73,7 @@ class Geocoder
         $latitude = (float)$latitude;
         $longitude = (float)$longitude;
 
-        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['Address'] ?? null;
+        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails'] ?? null;
         $city = null;
         if ($addressDetails && isset($addressDetails['AddressDetails'])) {
             $city = self::getCityName($addressDetails['AddressDetails']);
