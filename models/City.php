@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use TaskForce\Exceptions\SourceFileException;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -78,6 +79,18 @@ class City extends ActiveRecord
     public function getUsers(): ActiveQuery
     {
         return $this->hasMany(User::class, ['city_id' => 'id']);
+    }
+
+    /**
+     * @throws SourceFileException
+     */
+    public static function getIdByName($name): int
+    {
+        $city = City::findOne(['name' => $name]);
+        if (!$city) {
+            throw new SourceFileException("Города $name нет в БД");
+        }
+        return $city->id;
     }
 
 }

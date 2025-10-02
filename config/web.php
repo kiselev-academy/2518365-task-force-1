@@ -59,7 +59,18 @@ $config = [
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
             ],
         ],
-
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => $params['authClients']['vkontakte']['clientId'],
+                    'clientSecret' => $params['authClients']['vkontakte']['clientSecret'],
+                    'returnUrl' => 'https://2518365-task-force-1/auth/login',
+                    'scope' => 'email',
+                ],
+            ],
+        ],
     ],
     'params' => $params,
 ];

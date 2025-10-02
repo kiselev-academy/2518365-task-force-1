@@ -31,7 +31,6 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <?php endif ?>
 <?= Alert::widget() ?>
 <?= $content ?>
-<div class="overlay"></div>
 
 <?php $this->endBody() ?>
 </body>
