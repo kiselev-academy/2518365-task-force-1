@@ -13,8 +13,10 @@ use yii\web\Response;
 class AuthController extends GuestController
 {
     /**
-     * @throws InvalidRouteException
-     * @throws BadRequestHttpException
+     * Метод обрабатывает запрос на авторизацию ВК.
+     *
+     * @return Response
+     * @throws BadRequestHttpException если возникает ошибка при работе с клиентом авторизации.
      */
     public function actionVk(): Response
     {

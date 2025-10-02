@@ -31,11 +31,10 @@ $this->title = 'Taskforce';
                         <?= Yii::$app->formatter->format($task->created_at, 'relativeTime') ?>
                     </p>
                     <p class="task-text"><?= Html::encode($task->description) ?></p>
-                    <p>Откликов: <?= $task->getResponses()->count(); ?></p>
 
                     <div class="footer-task">
                         <p class="info-text town-text">
-                            <?= $task->city->name ?? 'Удаленная работа' ?>
+                            <?=isset($task->city->name) ? $task->city->name : 'Удаленная работа'?>
                         </p>
                         <p class="info-text category-text"><?= $task->category->name ?></p>
                         <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>" class="button button--black">Смотреть

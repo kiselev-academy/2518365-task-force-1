@@ -48,13 +48,13 @@ if (Yii::$app->user->isGuest) {
                             <a href="<?=Url::to(['/tasks'])?>" class="link link--nav">Новое</a>
                         </li>
                         <li class="list-item">
-                            <a href="#" class="link link--nav">Мои задания</a>
+                            <a href="<?=Url::to(['/my-tasks'])?>"  class="link link--nav">Мои задания</a>
                         </li>
                         <li class="list-item">
                             <a href="<?=Url::to(['/tasks/new'])?>" class="link link--nav">Создать задание</a>
                         </li>
                         <li class="list-item">
-                            <a href="#" class="link link--nav">Настройки</a>
+                            <a href="<?=Url::toRoute(['/users/edit'])?>" class="link link--nav">Настройки</a>
                         </li>
                     </ul>
                 </div>
@@ -63,15 +63,15 @@ if (Yii::$app->user->isGuest) {
             $user = Yii::$app->user->identity;
         ?>
         <div class="user-block">
-                <a href="#">
+                <a href="<?=Url::toRoute(['/users/view/', 'id' => $user->id])?>">
                     <img class="user-photo" src="/img/<?= $user->avatar; ?>" width="55" height="55" alt="Аватар">
                 </a>
             <div class="user-menu">
-                <p class="user-name"><?=$user->name?></p>
+                <p class="user-name"><?=Html::encode($user->name)?></p>
                 <div class="popup-head">
                     <ul class="popup-menu">
                         <li class="menu-item">
-                            <a href="#" class="link">Настройки</a>
+                            <a href="<?=Url::toRoute(['/users/edit'])?>" class="link">Настройки</a>
                         </li>
                         <li class="menu-item">
                             <a href="#" class="link">Связаться с нами</a>

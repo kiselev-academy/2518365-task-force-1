@@ -62,4 +62,32 @@ class TaskSearch extends Model
             'pagination' => $pagination,
         ];
     }
+
+    public function getUserTasks($userId, $role, $statuses, $isOverdue = false): array
+    {
+        $tasks = Task::find()
+            ->andWhere(['in', 'status', $statuses])
+            ->andWhere([$role . '_id' => $userId])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->with('category')
+            ->with('city');
+
+        if ($isOverdue) {
+            $tasks = $tasks->andWhere(['<', 'deadline', new Expression('CURRENT_TIMESTAMP()')]);
+        }
+
+        $pagination = new Pagination([
+            'totalCount' => $tasks->count(),
+            'pageSize' => 5,
+        ]);
+
+        $tasks = $tasks->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return [
+            'tasks' => $tasks,
+            'pagination' => $pagination,
+        ];
+    }
 }
