@@ -42,7 +42,7 @@ class UsersController extends AuthorizedController
         $profileForm = new EditProfileForm();
         $user = User::getCurrentUser();
 
-        if (Yii::$app->request->getIsPost()) {
+        if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
 
             if ($user->role === User::ROLE_EXECUTOR) {
