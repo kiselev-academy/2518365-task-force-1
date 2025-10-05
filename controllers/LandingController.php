@@ -13,6 +13,11 @@ class LandingController extends GuestController
 
     public function actionIndex(): array|Response|string
     {
+        /**
+         * Метод обрабатывает страницу лендинга и выполняет авторизацию в случае, если был выполнен вход на сайт.
+         *
+         * @return Response|string|array
+         */
         $loginForm = new LoginForm();
 
 

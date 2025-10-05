@@ -1,15 +1,16 @@
 <?php
+
+use app\models\User;
 use yii\widgets\ActiveForm;
 use yii\widgets\Menu;
-use app\models\User;
 
-$this->title = "Настройки безопасности";
+$this->title = "Taskforce";
 ?>
 
 <main class="main-content main-content--left container">
     <div class="left-menu left-menu--edit">
         <h3 class="head-main head-task">Настройки</h3>
-        <?=Menu::widget([
+        <?= Menu::widget([
             'options' => [
                 'class' => 'side-menu-list',
             ],
@@ -24,7 +25,7 @@ $this->title = "Настройки безопасности";
             'activeCssClass' => 'side-menu-item--active',
             'activateItems' => true,
             'activateParents' => false,
-        ]);?>
+        ]); ?>
     </div>
     <div class="my-profile-form">
         <?php $form = ActiveForm::begin([
@@ -33,15 +34,15 @@ $this->title = "Настройки безопасности";
             'fieldConfig' => [
                 'template' => "{label}{input}\n{error}",
             ],
-        ]);?>
+        ]); ?>
         <h3 class="head-main head-regular">Безопасность</h3>
-        <?=$form->field($secure, 'oldPassword')->passwordInput();?>
-        <?=$form->field($secure, 'newPassword')->passwordInput();?>
-        <?=$form->field($secure, 'repeatPassword')->passwordInput();?>
+        <?= $form->field($secure, 'oldPassword')->passwordInput(); ?>
+        <?= $form->field($secure, 'newPassword')->passwordInput(); ?>
+        <?= $form->field($secure, 'repeatPassword')->passwordInput(); ?>
         <?php if ($user->role !== User::ROLE_CUSTOMER): ?>
-            <?=$form->field($secure, 'hiddenContacts')->checkbox();?>
-        <?php endif;?>
+            <?= $form->field($secure, 'hiddenContacts')->checkbox(); ?>
+        <?php endif; ?>
         <input type="submit" class="button button--blue" value="Сохранить">
-        <?php ActiveForm::end();?>
+        <?php ActiveForm::end(); ?>
     </div>
 </main>

@@ -8,6 +8,7 @@ use app\models\forms\NewResponseForm;
 use app\models\forms\NewReviewForm;
 use app\models\forms\NewTaskForm;
 use app\models\forms\TasksFilter;
+use app\models\Response;
 use app\models\Task;
 use app\models\TaskSearch;
 use app\models\User;
@@ -17,10 +18,14 @@ use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\Response;
 
 class TasksController extends AuthorizedController
 {
+    /**
+     * Метод, определяющий правила доступа.
+     *
+     * @return array Массив с ролевыми настройками.
+     */
     public function behaviors(): array
     {
         $rules = parent::behaviors();
@@ -37,6 +42,11 @@ class TasksController extends AuthorizedController
         return $rules;
     }
 
+    /**
+     * Отображение списка заданий.
+     *
+     * @return string Отображение страницы.
+     */
     public function actionIndex(?int $category = null): string
     {
         $TaskSearch = new TaskSearch();
@@ -52,11 +62,15 @@ class TasksController extends AuthorizedController
     }
 
     /**
+     * Отображение задания по идентификатору.
+     *
+     * @param int $id ID задания.
+     * @return \yii\web\Response|string Отображение страницы или редирект.
      * @throws NotFoundHttpException
      */
-    public function actionView($id): Response|string
+    public function actionView(int $id): \yii\web\Response|string
     {
-        $task = Task::find()->with(['responses.executor'])->where(['id' => $id])->one();
+        $task = Task::findOne($id);
         if (!$task) {
             throw new NotFoundHttpException("Задание с ID $id не найдено");
         }
@@ -68,9 +82,12 @@ class TasksController extends AuthorizedController
     }
 
     /**
+     * Создание нового задания.
+     *
+     * @return \yii\web\Response |string Отображение страницы или редирект.
      * @throws InvalidRouteException
      */
-    public function actionNew(): Response|string
+    public function actionNew(): \yii\web\Response|string
     {
         $taskForm = new NewTaskForm();
 
@@ -89,6 +106,10 @@ class TasksController extends AuthorizedController
     }
 
     /**
+     * Создание отклика на задание.
+     *
+     * @param int $taskId ID задания.
+     * @return \yii\web\Response Редирект.
      * @throws Exception
      * @throws InvalidRouteException
      * @throws BadRequestHttpException
@@ -108,6 +129,11 @@ class TasksController extends AuthorizedController
     }
 
     /**
+     * Создание отзыва на задание.
+     *
+     * @param int $taskId ID задания.
+     * @param int $executorId ID исполнителя.
+     * @return \yii\web\Response Редирект.
      * @throws InvalidRouteException
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
@@ -136,16 +162,17 @@ class TasksController extends AuthorizedController
     }
 
     /**
-     * @param int $responseId
-     * @param int $taskId
-     * @param int $executorId
-     * @param $id
-     * @return Response
+     * Принятие отклика на задание.
+     *
+     * @param int $responseId ID отклика.
+     * @param int $taskId ID задания.
+     * @param int $executorId ID исполнителя.
+     * @return \yii\web\Response Редирект.
      * @throws Exception
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      */
-    public function actionAccept(int $responseId, int $taskId, int $executorId, $id): Response
+    public function actionAccept(int $responseId, int $taskId, int $executorId): \yii\web\Response
     {
         $response = Response::findOne($responseId);
         if (!$response) {
@@ -157,7 +184,7 @@ class TasksController extends AuthorizedController
 
         $task = Task::findOne($taskId);
         if (!$task) {
-            throw new NotFoundHttpException("Задание с ID $id не найдено");
+            throw new NotFoundHttpException("Задание с id $taskId не найдено");
         }
         if (!$task->startWork($executorId)) {
             throw new BadRequestHttpException('Не удалось сохранить данные');
@@ -167,10 +194,16 @@ class TasksController extends AuthorizedController
     }
 
     /**
+     * Отклонение отклика на задание.
+     *
+     * @param int $responseId ID отклика.
+     * @return \yii\web\Response Редирект.
+     *
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
+     * @throws Exception
      */
-    public function actionRefuse(int $responseId): Response
+    public function actionRefuse(int $responseId): \yii\web\Response
     {
         $response = Response::findOne($responseId);
         if (!$response) {
@@ -184,19 +217,20 @@ class TasksController extends AuthorizedController
     }
 
     /**
-     * @param int $taskId
-     * @param int $executorId
-     * @param int $id
-     * @return Response
+     * Провал задания.
+     *
+     * @param int $taskId ID задания.
+     * @param int $executorId ID исполнителя.
+     * @return \yii\web\Response Редирект.
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionFail(int $taskId, int $executorId, int $id): Response
+    public function actionFail(int $taskId, int $executorId): \yii\web\Response
     {
         $task = Task::findOne($taskId);
         if (!$task) {
-            throw new NotFoundHttpException("Задание с ID $id не найдено");
+            throw new NotFoundHttpException("Задание с id $taskId не найдено");
         }
         if (!$task->failTask()) {
             throw new BadRequestHttpException('Не удалось сохранить данные');
@@ -214,18 +248,19 @@ class TasksController extends AuthorizedController
     }
 
     /**
-     * @param int $taskId
-     * @param int $id
-     * @return Response
+     * Отмена задания.
+     *
+     * @param int $taskId ID задания.
+     * @return \yii\web\Response Редирект.
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionCancel(int $taskId, int $id): Response
+    public function actionCancel(int $taskId): \yii\web\Response
     {
         $task = Task::findOne($taskId);
         if (!$task) {
-            throw new NotFoundHttpException("Задание с ID $id не найдено");
+            throw new NotFoundHttpException("Задание с id $taskId не найдено");
         }
         if (!$task->cancelTask()) {
             throw new BadRequestHttpException('Не удалось сохранить данные');

@@ -15,11 +15,13 @@ use yii\helpers\Url;
 
 <div class="response-card">
     <?php if (!empty($response->executor->avatar)): ?>
-        <img class="customer-photo" src="<?= Html::encode($response->executor->avatar) ?>" width="146" height="156" alt="Фото исполнителя">
+        <img class="customer-photo" src="<?= Html::encode($response->executor->avatar) ?>" width="146" height="156"
+             alt="Фото исполнителя">
     <?php endif; ?>
 
     <div class="feedback-wrapper">
-        <a href="<?= Url::toRoute(['/users/view/', 'id' => $response->executor->id]) ?>" class="link link--block link--big">
+        <a href="<?= Url::toRoute(['/users/view/', 'id' => $response->executor->id]) ?>"
+           class="link link--block link--big">
             <?= Html::encode($response->executor->name) ?>
         </a>
         <div class="response-wrapper">
@@ -42,14 +44,16 @@ use yii\helpers\Url;
             </span>
         </p>
         <p class="price price--small">
-            <?= !empty($response->price) ? Html::encode(Yii::$app->formatter->asCurrency($response->price)) : '' ?>&nbsp;₽
+            <?= !empty($response->price) ? Html::encode(Yii::$app->formatter->asCurrency($response->price)) : '' ?>
         </p>
     </div>
 
     <?php if (UserView::isViewResponseButtons($user->id, $task->customer_id, $task->status, $response->status)): ?>
         <div class="button-popup">
-            <a href="<?= Url::toRoute(['/tasks/accept', 'responseId' => $response->id, 'taskId' => $task->id, 'executorId' => $response->executor->id]) ?>" class="button button--blue button--small">Принять</a>
-            <a href="<?= Url::toRoute(['/tasks/refuse', 'responseId' => $response->id]) ?>" class="button button--orange button--small">Отказать</a>
+            <a href="<?= Url::toRoute(['/tasks/accept', 'responseId' => $response->id, 'taskId' => $task->id, 'executorId' => $response->executor->id]) ?>"
+               class="button button--blue button--small">Принять</a>
+            <a href="<?= Url::toRoute(['/tasks/refuse', 'responseId' => $response->id]) ?>"
+               class="button button--orange button--small">Отказать</a>
         </div>
     <?php endif; ?>
 </div>

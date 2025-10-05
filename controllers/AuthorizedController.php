@@ -7,6 +7,11 @@ use yii\web\Controller;
 
 abstract class AuthorizedController extends Controller implements RulesInterface
 {
+    /**
+     * Метод, определяющий правила доступа для авторизованных пользователей.
+     *
+     * @return array Массив с настройками.
+     */
     public function behaviors(): array
     {
         return [

@@ -7,6 +7,11 @@ use yii\web\Controller;
 
 abstract class GuestController extends Controller implements RulesInterface
 {
+    /**
+     * Метод, определяющий правила доступа для незарегистрированных пользователей.
+     *
+     * @return array Массив с настройками.
+     */
     public function behaviors(): array
     {
         return [

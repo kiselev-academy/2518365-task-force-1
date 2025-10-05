@@ -11,35 +11,34 @@ use yii\db\Exception;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "users".
+ * Модель для таблицы "users".
  *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $password
- * @property string $role
- * @property string|null $birthday
- * @property string|null $phone
- * @property string|null $telegram
- * @property string|null $info
- * @property string|null $specializations
- * @property string|null $avatar
- * @property int|null $successful_tasks
- * @property int|null $failed_tasks
- * @property int $city_id
- * @property int|null $vk_id
- * @property int $hidden_contacts
- * @property float $total_score
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID пользователя.
+ * @property string $name Имя пользователя.
+ * @property string $email Электронная почта пользователя.
+ * @property string $password Пароль пользователя.
+ * @property string $role Роль пользователя.
+ * @property string|null $birthday Дата рождения пользователя.
+ * @property string|null $phone Номер телефона пользователя.
+ * @property string|null $telegram Имя пользователя в Telegram.
+ * @property string|null $info Информация о пользователе.
+ * @property string|null $specializations Специализации пользователя.
+ * @property string|null $avatar URL аватара пользователя.
+ * @property int|null $successful_tasks Кол-во выполненных задач.
+ * @property int|null $failed_tasks Кол-во проваленных задач.
+ * @property int $city_id ID города пользователя.
+ * @property int|null $vk_id ID пользователя ВКонтакте.
+ * @property int $hidden_contacts Скрыть контакты для всех, кроме заказчика.
+ * @property float $total_score Рейтинг пользователя.
+ * @property string|null $created_at Дата создания.
+ * @property string|null $updated_at Дата изменения.
  *
- * @property City $city
- * @property Response[] $responses
- * @property Review[] $customerReviews
- * @property Review[] $executorReviews
- * @property Task[] $customerTasks
- * @property Task[] $executorTasks
- * @property mixed|null $getExecutorReviews
+ * @property City $city Связь с моделью города.
+ * @property Response[] $responses Связь с моделью откликов.
+ * @property Review[] $customerReviews Связь с моделью отзывов заказчиков.
+ * @property Review[] $executorReviews Связь с моделью отзывов исполнителей.
+ * @property Task[] $customerTasks Связь с моделью задач заказчиков.
+ * @property Task[] $executorTasks Связь с моделью задач исполнителей.
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -51,7 +50,9 @@ class User extends ActiveRecord implements IdentityInterface
     const string ROLE_EXECUTOR = 'executor';
 
     /**
-     * {@inheritdoc}
+     * Возвращает название таблицы.
+     *
+     * @return string Название таблицы.
      */
     public static function tableName(): string
     {
@@ -59,7 +60,68 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает текущего пользователя.
+     *
+     * @return User|null Текущий пользователь.
+     */
+    public static function getCurrentUser(): ?User
+    {
+        return User::findOne(Yii::$app->user->getId());
+    }
+
+    /**
+     * Возвращает ID пользователя.
+     *
+     * @return int|null ID пользователя.
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Находит объект пользователя по ID.
+     *
+     * @param int $id ID пользователя.
+     * @return User|null Возвращает найденного пользователя или null, если пользователь не найден.
+     */
+    public static function findIdentity($id): ?User
+    {
+        return self::findOne($id);
+    }
+
+    /**
+     * Находит объект пользователя по маркеру доступа
+     *
+     * @param string $token Маркер доступа.
+     * @param string|null $type Тип маркера доступа.
+     * @return User|null Возвращает null.
+     * @throws NotSupportedException
+     */
+    public static function findIdentityByAccessToken($token, $type = null): ?User
+    {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+
+    /**
+     * Генерирует HTML-строки с заполненными и пустыми звездочками, основываясь на рейтинге.
+     *
+     * @param float $rating значение рейтинга.
+     * @return string HTML-код со звездами.
+     */
+    public static function getUserStars(float $rating): string
+    {
+        $count = round($rating);
+        $filledStars = "<span class=\"fill-star\">&nbsp;</span>";
+        $emptyStars = "<span>&nbsp;</span>";
+
+        return str_repeat($filledStars, $count) . str_repeat($emptyStars, 5 - $count);
+    }
+
+    /**
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -81,7 +143,22 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает роль пользователя.
+     *
+     * @return string[] Роль пользователя.
+     */
+    public static function optsRole(): array
+    {
+        return [
+            self::ROLE_CUSTOMER => 'customer',
+            self::ROLE_EXECUTOR => 'executor',
+        ];
+    }
+
+    /**
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -109,7 +186,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[City]].
+     * Получает запрос для [[City]].
      *
      * @return ActiveQuery
      */
@@ -119,7 +196,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[Responses]].
+     * Получает запрос для [[Responses]].
      *
      * @return ActiveQuery
      */
@@ -129,7 +206,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[customerReviews]].
+     * Получает запрос для [[customerReviews]].
      *
      * @return ActiveQuery
      */
@@ -139,17 +216,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[executorReviews]].
-     *
-     * @return ActiveQuery
-     */
-    public function getExecutorReviews(): ActiveQuery
-    {
-        return $this->hasMany(Review::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[customerTasks]].
+     * Получает запрос для [[customerTasks]].
      *
      * @return ActiveQuery
      */
@@ -159,7 +226,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Gets query for [[executorTasks]].
+     * Получает запрос для [[executorTasks]].
      *
      * @return ActiveQuery
      */
@@ -168,21 +235,10 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
     }
 
-
     /**
-     * column role ENUM value labels
-     * @return string[]
-     */
-    public static function optsRole(): array
-    {
-        return [
-            self::ROLE_CUSTOMER => 'customer',
-            self::ROLE_EXECUTOR => 'executor',
-        ];
-    }
-
-    /**
-     * @return string
+     * Отображает название текущей роли пользователя.
+     *
+     * @return string Название роли, соответствующее текущему значению $role.
      */
     public function displayRole(): string
     {
@@ -190,69 +246,83 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @return bool
+     * Проверяет, является ли роль пользователя "Заказчик".
+     *
+     * @return bool true, если роль текущего пользователя — ROLE_CUSTOMER; иначе false.
      */
     public function isRoleCustomer(): bool
     {
         return $this->role === self::ROLE_CUSTOMER;
     }
 
+    /**
+     * Устанавливает роль пользователя как "Заказчик".
+     *
+     * @return void
+     */
     public function setRoleToCustomer(): void
     {
         $this->role = self::ROLE_CUSTOMER;
     }
 
     /**
-     * @return bool
+     * Проверяет, является ли роль пользователя "Исполнитель".
+     *
+     * @return bool true, если роль текущего пользователя — ROLE_EXECUTOR; иначе false.
      */
     public function isRoleExecutor(): bool
     {
         return $this->role === self::ROLE_EXECUTOR;
     }
 
+    /**
+     * Устанавливает роль пользователя как "Исполнитель".
+     *
+     * @return void
+     */
     public function setRoleToExecutor(): void
     {
         $this->role = self::ROLE_EXECUTOR;
     }
 
-    public static function getCurrentUser(): ?User
-    {
-        return User::findOne(Yii::$app->user->getId());
-    }
-
-    public static function findIdentity($id): User|IdentityInterface|null
-    {
-        return self::findOne($id);
-    }
-
     /**
-     * @throws NotSupportedException
+     * Возвращает ключ аутентификации.
+     *
+     * @return string|null Возвращает null.
+     * @throws \yii\base\Exception
      */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getAuthKey(): string
+    public function getAuthKey(): ?string
     {
         return Yii::$app->getSecurity()->generatePasswordHash($this->id . $this->password);
     }
 
+    /**
+     * Валидирует ключ аутентификации.
+     *
+     * @param string $authKey Ключ аутентификации.
+     * @return bool Возвращает false.
+     */
     public function validateAuthKey($authKey): bool
     {
         return Yii::$app->getSecurity()->validatePassword($this->id . $this->password, $authKey);
     }
 
-    public function validatePassword($password): bool
+    /**
+     * Проверяет правильность пароля.
+     *
+     * @param string $password Пароль для проверки.
+     * @return bool Возвращает true, если пароль правильный, иначе false.
+     */
+    public function validatePassword(string $password): bool
     {
         return Yii::$app->security->validatePassword($password, $this->password);
     }
 
+    /**
+     * Возвращает рейтинг пользователя.
+     *
+     * @return string Рейтинг пользователя.
+     */
     public function getUserRating(): string
     {
         $sum = 0;
@@ -274,30 +344,91 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Получает запрос для [[executorReviews]].
+     *
+     * @return ActiveQuery
+     */
+    public function getExecutorReviews(): ActiveQuery
+    {
+        return $this->hasMany(Review::class, ['executor_id' => 'id']);
+    }
+
+    /**
+     * Увеличивает счетчик выполненных задач пользователя.
+     *
+     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
      * @throws Exception
      */
     public function getCounterCompletedTasks(): bool
     {
         $this->successful_tasks += 1;
+        $this->updateTotalScore();
         return $this->save();
     }
 
     /**
+     * Обновляет общий балл пользователя.
+     *
+     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
+     * @throws Exception
+     */
+    public function updateTotalScore(): bool
+    {
+        $totalScore = $this->calcTotalScore();
+        $this->total_score = $totalScore;
+        return $this->save();
+    }
+
+    /**
+     * Вычисляет общий балл пользователя.
+     *
+     * @return string Общий балл пользователя.
+     */
+    public function calcTotalScore(): string
+    {
+        $reviews = $this->getExecutorReviews()->all();
+        $sumRating = array_sum(array_column($reviews, 'rating'));
+        $totalReviews = count($reviews);
+        $totalScore = 0;
+        if ($totalReviews > 0) {
+            $totalScore = round($sumRating / $totalReviews, 2);
+        }
+        return $totalScore;
+    }
+
+    /**
+     * Увеличивает счетчик проваленных задач пользователя.
+     *
+     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
      * @throws Exception
      */
     public function getCounterFailedTasks(): bool
     {
         $this->failed_tasks += 1;
+        $this->updateTotalScore();
         return $this->save();
     }
 
-    public static function getUserStars($rating): string
+    /**
+     * Возвращает место в рейтинге на основе общего балла.
+     *
+     * @return int Место в рейтинге.
+     */
+    public function getUserRank(): int
     {
-        $count = round($rating);
-        $filledStars = str_repeat('<span class="fill-star">&nbsp;</span>', $count);
-        $emptyStars = str_repeat('<span>&nbsp;</span>', 5 - $count);
-        return $filledStars . $emptyStars;
+        $users = User::find()->orderBy(['total_score' => SORT_DESC, 'id' => SORT_ASC])->all();
+
+        $rank = 1;
+        foreach ($users as $user) {
+            if ($user->id == $this->id) {
+                return $rank;
+            }
+            $rank++;
+        }
+
+        return 0;
     }
+
 
     public function getUserStatus(): string
     {

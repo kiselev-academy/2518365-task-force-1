@@ -3,29 +3,28 @@
 namespace app\models;
 
 use TaskForce\Exceptions\SourceFileException;
-use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "cities".
+ * Класс модели для таблицы "cities".
  *
- * @property int $id
- * @property string $name
- * @property float $latitude
- * @property float $longitude
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID города.
+ * @property string $name Название города.
+ * @property float $latitude Широта города.
+ * @property float $longitude Долгота города.
+ * @property string|null $created_at Дата создания
+ * @property string|null $updated_at Дата обновления
  *
- * @property Task[] $tasks
- * @property User[] $users
+ * @property Task[] $tasks Задачи, связанные с данным городом.
+ * @property User[] $users Пользователи, связанные с данным городом.
  */
 class City extends ActiveRecord
 {
-
-
     /**
-     * {@inheritdoc}
+     * Возвращает имя таблицы в базе данных.
+     *
+     * @return string Имя таблицы в базе данных.
      */
     public static function tableName(): string
     {
@@ -33,7 +32,25 @@ class City extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает ID города по его названию.
+     *
+     * @param string $name Название города.
+     * @return int ID города.
+     * @throws SourceFileException
+     */
+    public static function getIdByName(string $name): int
+    {
+        $city = City::findOne(['name' => $name]);
+        if (!$city) {
+            throw new SourceFileException("Города $name нет в БД");
+        }
+        return $city->id;
+    }
+
+    /**
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -47,7 +64,9 @@ class City extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -62,9 +81,9 @@ class City extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Tasks]].
+     * Получает запрос для [[Tasks]].
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Запрос для задач, связанных с данным городом.
      */
     public function getTasks(): ActiveQuery
     {
@@ -72,25 +91,13 @@ class City extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Users]].
+     * Получает запрос для [[Users]].
      *
-     * @return ActiveQuery
+     * @return ActiveQuery Запрос для пользователей, связанных с данным городом.
      */
     public function getUsers(): ActiveQuery
     {
         return $this->hasMany(User::class, ['city_id' => 'id']);
-    }
-
-    /**
-     * @throws SourceFileException
-     */
-    public static function getIdByName($name): int
-    {
-        $city = City::findOne(['name' => $name]);
-        if (!$city) {
-            throw new SourceFileException("Города $name нет в БД");
-        }
-        return $city->id;
     }
 
 }

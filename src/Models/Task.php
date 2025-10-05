@@ -37,16 +37,6 @@ class Task
         }
     }
 
-    public function getIdCustomer(): int
-    {
-        return $this->customerId;
-    }
-
-    public function getIdExecutor(): int
-    {
-        return $this->executorId;
-    }
-
     /**
      * Функция для возврата «карты» статусов
      * @return array возвращает массив с названием статусов
@@ -73,17 +63,23 @@ class Task
     }
 
     /**
-     * Функция для возврата «карты» действия
-     * @return array возвращает массив с названием действий
+     * Функция для получения ID заказчика.
+     *
+     * @return int ID заказчика.
      */
-    public function getActionMap(): array
+    public function getIdCustomer(): int
     {
-        return [
-            self::ACTION_CANCEL => CancelAction::getTitle(),
-            self::ACTION_ACCEPT => AcceptAction::getTitle(),
-            self::ACTION_RESPOND => RespondAction::getTitle(),
-            self::ACTION_REFUSE => RefuseAction::getTitle(),
-        ];
+        return $this->customerId;
+    }
+
+    /**
+     * Функция для получения ID исполнителя.
+     *
+     * @return int ID исполнителя.
+     */
+    public function getIdExecutor(): int
+    {
+        return $this->executorId;
     }
 
     /**
@@ -104,6 +100,20 @@ class Task
             self::ACTION_RESPOND => self::STATUS_WORK,
             self::ACTION_REFUSE => self::STATUS_FAILED,
         };
+    }
+
+    /**
+     * Функция для возврата «карты» действия
+     * @return array возвращает массив с названием действий
+     */
+    public function getActionMap(): array
+    {
+        return [
+            self::ACTION_CANCEL => CancelAction::getTitle(),
+            self::ACTION_ACCEPT => AcceptAction::getTitle(),
+            self::ACTION_RESPOND => RespondAction::getTitle(),
+            self::ACTION_REFUSE => RefuseAction::getTitle(),
+        ];
     }
 
     /**

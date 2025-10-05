@@ -49,6 +49,7 @@ class Geocoder
         $content = (string)$response->getBody();
         $responseData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
+
         $featureMember = $responseData['response']['GeoObjectCollection']['featureMember'] ?? null;
 
         if (empty($featureMember) || ($key = array_key_first($featureMember)) === null || !isset($featureMember[$key]['GeoObject'])) {
@@ -81,19 +82,15 @@ class Geocoder
 
         $address = $geoObject['name'] ?? null;
 
-        var_dump($address, $city);
-        die;
 
         return match ($format) {
-            'coordinates' => [$latitude, $longitude],
+            'coordinates' => [$longitude, $latitude],
             'city' => $city,
             'address' => $address,
-            'allData' => ['coordinates' => [$latitude, $longitude], 'city' => $city, 'address' => $address],
+            'allData' => ['coordinates' => [$longitude, $latitude], 'city' => $city, 'address' => $address],
             default => throw new \InvalidArgumentException('Недопустимый формат данных: ' . $format),
         };
     }
-
-
 
     /**
      * Поиск значение ключа 'LocalityName' в массиве и возврат его.

@@ -43,21 +43,10 @@ class RegistrationForm extends Model
             [['city'], 'exist', 'targetClass' => City::class, 'targetAttribute' => ['city' => 'id']],
             [['password'], 'string', 'min' => 8, 'message' => 'Пароль должен быть не менее 8 символов'],
             [['passwordRepeat'], 'compare', 'compareAttribute' => 'password', 'message' => 'Пароли не совпадают'],
-            [['isExecutor'], 'boolean']
+            [['isExecutor'], 'boolean'],
+            [['name', 'email', 'city'], 'filter', 'filter' => 'strip_tags'],
         ];
     }
-
-    public function getUser(): User
-    {
-        $user = new User;
-        $user->name = $this->name;
-        $user->email = $this->email;
-        $user->password = $this->password;
-        $user->city_id = $this->city;
-        $user->role = $this->isExecutor ? User::ROLE_EXECUTOR : User::ROLE_CUSTOMER;
-        return $user;
-    }
-
 
     /**
      * @throws Exception
@@ -73,5 +62,16 @@ class RegistrationForm extends Model
                 Yii::$app->response->redirect(['tasks']);
             }
         }
+    }
+
+    public function getUser(): User
+    {
+        $user = new User;
+        $user->name = $this->name;
+        $user->email = $this->email;
+        $user->password = $this->password;
+        $user->city_id = $this->city;
+        $user->role = $this->isExecutor ? User::ROLE_EXECUTOR : User::ROLE_CUSTOMER;
+        return $user;
     }
 }

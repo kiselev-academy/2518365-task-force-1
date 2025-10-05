@@ -11,6 +11,10 @@ use yii\db\Exception;
 class RegistrationController extends GuestController
 {
     /**
+     * Метод, обрабатывает запрос на регистрацию нового пользователя.
+     *
+     * @return string Отображение страницы регистрации.
+     *
      * @throws Exception
      * @throws \yii\base\Exception
      * @throws InvalidRouteException
@@ -20,11 +24,11 @@ class RegistrationController extends GuestController
         $cities = City::find()->select(['name', 'id'])->indexBy('id')->column();
         $registration = new RegistrationForm();
 
-        if (Yii::$app->request->getIsPost()) {
+        if (Yii::$app->request->isPost) {
             $registration->load(Yii::$app->request->post());
             $registration->createUser();
         }
 
-        return $this->render('index', compact('registration','cities'));
+        return $this->render('index', compact('registration', 'cities'));
     }
 }

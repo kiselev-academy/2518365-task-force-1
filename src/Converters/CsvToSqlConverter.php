@@ -46,6 +46,21 @@ class CsvToSqlConverter
     /**
      * @throws FileFormatException
      */
+    public function saveToFile(string $outputFile): void
+    {
+        $sql = $this->readTableAndConvert();
+
+        $directory = dirname($outputFile);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+
+        file_put_contents($outputFile, $sql);
+    }
+
+    /**
+     * @throws FileFormatException
+     */
     public function readTableAndConvert(): string
     {
         $file = new SplFileObject($this->fileName);
@@ -79,20 +94,5 @@ class CsvToSqlConverter
         }
 
         return $sql;
-    }
-
-    /**
-     * @throws FileFormatException
-     */
-    public function saveToFile(string $outputFile): void
-    {
-        $sql = $this->readTableAndConvert();
-
-        $directory = dirname($outputFile);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-        }
-
-        file_put_contents($outputFile, $sql);
     }
 }

@@ -2,14 +2,23 @@
 
 namespace app\models;
 
+use TaskForce\Exceptions\SourceFileException;
 use Yii;
-use app\models\User;
-use app\models\City;
+use yii\base\Exception;
 use yii\base\Model;
 
 class VkUser extends Model
 {
-    public function createUser($userData): void
+    /**
+     * Создает нового пользователя на основе данных, полученных из ВКонтакте.
+     *
+     * @param array $userData Массив с данными пользователя из ВКонтакте.
+     * @return void
+     * @throws SourceFileException
+     * @throws Exception
+     * @throws \yii\db\Exception
+     */
+    public function createUser(array $userData): void
     {
         $user = new User;
         $user->name = $userData['first_name'];

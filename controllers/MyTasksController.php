@@ -36,6 +36,7 @@ class MyTasksController extends AuthorizedController
         if ($this->user->role === User::ROLE_EXECUTOR) {
             return Yii::$app->response->redirect(["/my-tasks/work"]);
         }
+        return $this->goHome();
     }
 
     /**

@@ -50,13 +50,14 @@ class EditProfileForm extends Model
             [['phone'], 'match', 'pattern' => '/^\d{11}$/', 'message' => 'Номер телефона должен состоять из 11 цифр'],
             [['telegram'], 'string', 'max' => 64],
             [['avatar', 'info', 'specializations'], 'safe'],
+            [['avatar', 'name', 'email', 'birthday', 'phone', 'telegram', 'info'], 'filter', 'filter' => 'strip_tags'],
         ];
     }
 
     /**
      * Сохраняет профиль пользователя.
      *
-     * @param int $userId Идентификатор пользователя.
+     * @param int $userId ID пользователя.
      * @return bool Возвращает true, если профиль успешно сохранен, иначе false.
      * @throws Exception
      */

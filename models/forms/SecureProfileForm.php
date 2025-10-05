@@ -81,7 +81,7 @@ class SecureProfileForm extends Model
     /**
      * Сохраняет данные профиля пользователя.
      *
-     * @param int $userId Идентификатор пользователя.
+     * @param int $userId ID пользователя.
      * @return bool Результат сохранения данных профиля пользователя.
      * @throws Exception|\yii\base\Exception Исключение.
      */

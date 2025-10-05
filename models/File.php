@@ -4,24 +4,25 @@ namespace app\models;
 
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 
 /**
- * This is the model class for table "files".
+ * Класс модели для таблицы "files".
  *
- * @property int $id
- * @property int $task_id
- * @property string $path
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID файла.
+ * @property int $task_id ID задачи, к которой относится файл.
+ * @property string $path Ссылка на файл.
+ * @property string|null $created_at Дата создания.
+ * @property string|null $updated_at Дата изменения.
  *
- * @property Task $task
+ * @property Task $task Задача, к которой относится данный файл.
  */
 class File extends ActiveRecord
 {
-
-
     /**
-     * {@inheritdoc}
+     * Возвращает имя таблицы в базе данных.
+     *
+     * @return string Имя таблицы в базе данных.
      */
     public static function tableName(): string
     {
@@ -29,7 +30,25 @@ class File extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Сохраняет файл с заданными ссылкой и ID задачи.
+     *
+     * @param string $path Ссылка на файл.
+     * @param int $taskId ID задачи, к которой относится файл.
+     * @return void
+     * @throws Exception
+     */
+    public static function saveFile(string $path, int $taskId): void
+    {
+        $newFile = new self;
+        $newFile->path = $path;
+        $newFile->task_id = $taskId;
+        $newFile->save(false);
+    }
+
+    /**
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -44,7 +63,9 @@ class File extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -58,20 +79,12 @@ class File extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Task]].
+     * Получает запрос для [[Task]].
      *
      * @return ActiveQuery
      */
     public function getTask(): ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
-    }
-
-    public static function saveFile($path, $taskId): void
-    {
-        $newFile = new self;
-        $newFile->path = $path;
-        $newFile->task_id = $taskId;
-        $newFile->save(false);
     }
 }

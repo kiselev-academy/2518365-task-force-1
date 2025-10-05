@@ -34,7 +34,7 @@ $this->title = 'Taskforce';
 
                     <div class="footer-task">
                         <p class="info-text town-text">
-                            <?=isset($task->city->name) ? $task->city->name : 'Удаленная работа'?>
+                            <?= isset($task->city->name) ? $task->city->name : 'Удаленная работа' ?>
                         </p>
                         <p class="info-text category-text"><?= $task->category->name ?></p>
                         <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>" class="button button--black">Смотреть
