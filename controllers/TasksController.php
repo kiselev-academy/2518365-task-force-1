@@ -18,6 +18,7 @@ use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response as WebResponse;
 
 class TasksController extends AuthorizedController
 {
@@ -65,10 +66,10 @@ class TasksController extends AuthorizedController
      * Отображение задания по идентификатору.
      *
      * @param int $id ID задания.
-     * @return \yii\web\Response|string Отображение страницы или редирект.
+     * @return WebResponse|string Отображение страницы или редирект.
      * @throws NotFoundHttpException
      */
-    public function actionView(int $id): \yii\web\Response|string
+    public function actionView(int $id): WebResponse|string
     {
         $task = Task::findOne($id);
         if (!$task) {
@@ -84,10 +85,10 @@ class TasksController extends AuthorizedController
     /**
      * Создание нового задания.
      *
-     * @return \yii\web\Response |string Отображение страницы или редирект.
+     * @return WebResponse |string Отображение страницы или редирект.
      * @throws InvalidRouteException
      */
-    public function actionNew(): \yii\web\Response|string
+    public function actionNew(): WebResponse|string
     {
         $taskForm = new NewTaskForm();
 
@@ -109,12 +110,12 @@ class TasksController extends AuthorizedController
      * Создание отклика на задание.
      *
      * @param int $taskId ID задания.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      * @throws Exception
      * @throws InvalidRouteException
      * @throws BadRequestHttpException
      */
-    public function actionResponse(int $taskId): \yii\web\Response
+    public function actionResponse(int $taskId): WebResponse
     {
         $responseForm = new NewResponseForm();
         if (!Yii::$app->request->isPost) {
@@ -133,13 +134,13 @@ class TasksController extends AuthorizedController
      *
      * @param int $taskId ID задания.
      * @param int $executorId ID исполнителя.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      * @throws InvalidRouteException
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      * @throws Exception
      */
-    public function actionReview(int $taskId, int $executorId): \yii\web\Response
+    public function actionReview(int $taskId, int $executorId): WebResponse
     {
         $reviewForm = new NewReviewForm();
         if (!Yii::$app->request->isPost) {
@@ -167,12 +168,12 @@ class TasksController extends AuthorizedController
      * @param int $responseId ID отклика.
      * @param int $taskId ID задания.
      * @param int $executorId ID исполнителя.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      * @throws Exception
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      */
-    public function actionAccept(int $responseId, int $taskId, int $executorId): \yii\web\Response
+    public function actionAccept(int $responseId, int $taskId, int $executorId): WebResponse
     {
         $response = Response::findOne($responseId);
         if (!$response) {
@@ -197,13 +198,13 @@ class TasksController extends AuthorizedController
      * Отклонение отклика на задание.
      *
      * @param int $responseId ID отклика.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      *
      * @throws NotFoundHttpException
      * @throws BadRequestHttpException
      * @throws Exception
      */
-    public function actionRefuse(int $responseId): \yii\web\Response
+    public function actionRefuse(int $responseId): WebResponse
     {
         $response = Response::findOne($responseId);
         if (!$response) {
@@ -221,12 +222,12 @@ class TasksController extends AuthorizedController
      *
      * @param int $taskId ID задания.
      * @param int $executorId ID исполнителя.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionFail(int $taskId, int $executorId): \yii\web\Response
+    public function actionFail(int $taskId, int $executorId): WebResponse
     {
         $task = Task::findOne($taskId);
         if (!$task) {
@@ -251,12 +252,12 @@ class TasksController extends AuthorizedController
      * Отмена задания.
      *
      * @param int $taskId ID задания.
-     * @return \yii\web\Response Редирект.
+     * @return WebResponse Редирект.
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionCancel(int $taskId): \yii\web\Response
+    public function actionCancel(int $taskId): WebResponse
     {
         $task = Task::findOne($taskId);
         if (!$task) {
