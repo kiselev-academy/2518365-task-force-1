@@ -49,10 +49,9 @@ class Geocoder
         $content = (string)$response->getBody();
         $responseData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
-
         $featureMember = $responseData['response']['GeoObjectCollection']['featureMember'] ?? null;
 
-        if (empty($featureMember) || empty($key = array_key_first($featureMember)) || !isset($featureMember[$key]['GeoObject'])) {
+        if (empty($featureMember) || ($key = array_key_first($featureMember)) === null || !isset($featureMember[$key]['GeoObject'])) {
             return null;
         }
 
@@ -73,13 +72,17 @@ class Geocoder
         $latitude = (float)$latitude;
         $longitude = (float)$longitude;
 
-        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails'] ?? null;
+        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea'] ?? null;
+
         $city = null;
-        if ($addressDetails && isset($addressDetails['AddressDetails'])) {
-            $city = self::getCityName($addressDetails['AddressDetails']);
+        if (is_array($addressDetails)) {
+            $city = self::getCityName($addressDetails);
         }
 
         $address = $geoObject['name'] ?? null;
+
+        var_dump($address, $city);
+        die;
 
         return match ($format) {
             'coordinates' => [$latitude, $longitude],
@@ -89,6 +92,8 @@ class Geocoder
             default => throw new \InvalidArgumentException('Недопустимый формат данных: ' . $format),
         };
     }
+
+
 
     /**
      * Поиск значение ключа 'LocalityName' в массиве и возврат его.
