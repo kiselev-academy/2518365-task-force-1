@@ -31,6 +31,6 @@ class YandexMapAsset extends AssetBundle
             throw new \RuntimeException("Не указан параметр ключа яндекс карт");
         }
 
-        $this->js[0] = $apiKey;
+        $this->js[0] = "https://api-maps.yandex.ru/2.1/?apikey={$apiKey}&lang=ru_RU";
     }
 }

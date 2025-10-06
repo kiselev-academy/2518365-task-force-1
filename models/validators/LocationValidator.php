@@ -13,6 +13,12 @@ class LocationValidator extends Validator
     /** Ключ для кэша городов */
     protected const string CITY_KEY = 'LocationValidator::validateValue::%s';
 
+    /**
+     * Валидация значения города.
+     *
+     * @param mixed $value Значение для валидации.
+     * @return array|null Массив с ошибками или null, если валидация прошла успешно.
+     */
     protected function validateValue($value): ?array
     {
         if (empty($value)) {
@@ -23,7 +29,7 @@ class LocationValidator extends Validator
             try {
                 Yii::error('Пробуем определить город для: ' . $value);
                 $cityName = Geocoder::getLocationData($value, 'city');
-            } catch (ClientException |\JsonException $e) {
+            } catch (ClientException|\JsonException $e) {
                 return ['Не удалось подтвердить название города', []];
             }
 

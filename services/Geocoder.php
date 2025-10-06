@@ -52,7 +52,7 @@ class Geocoder
 
         $featureMember = $responseData['response']['GeoObjectCollection']['featureMember'] ?? null;
 
-        if (empty($featureMember) || empty($key = array_key_first($featureMember)) || !isset($featureMember[$key]['GeoObject'])) {
+        if (empty($featureMember) || ($key = array_key_first($featureMember)) === null || !isset($featureMember[$key]['GeoObject'])) {
             return null;
         }
 
@@ -73,19 +73,21 @@ class Geocoder
         $latitude = (float)$latitude;
         $longitude = (float)$longitude;
 
-        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails'] ?? null;
+        $addressDetails = $geoObject['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea'] ?? null;
+
         $city = null;
-        if ($addressDetails && isset($addressDetails['AddressDetails'])) {
-            $city = self::getCityName($addressDetails['AddressDetails']);
+        if (is_array($addressDetails)) {
+            $city = self::getCityName($addressDetails);
         }
 
         $address = $geoObject['name'] ?? null;
 
+
         return match ($format) {
-            'coordinates' => [$latitude, $longitude],
+            'coordinates' => [$longitude, $latitude],
             'city' => $city,
             'address' => $address,
-            'allData' => ['coordinates' => [$latitude, $longitude], 'city' => $city, 'address' => $address],
+            'allData' => ['coordinates' => [$longitude, $latitude], 'city' => $city, 'address' => $address],
             default => throw new \InvalidArgumentException('Недопустимый формат данных: ' . $format),
         };
     }

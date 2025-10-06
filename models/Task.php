@@ -2,42 +2,55 @@
 
 namespace app\models;
 
-use Yii;
+use TaskForce\Models\Task as TaskBasic;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use TaskForce\Models\Task as TaskBasic;
 use yii\db\Exception;
 
 /**
- * This is the model class for table "tasks".
+ * Класс модели для таблицы "tasks".
  *
- * @property int $id
- * @property string $title
- * @property string|null $description
- * @property int $category_id
- * @property string|null $budget
- * @property string $status
- * @property int $city_id
- * @property string|null $location
- * @property float|null $latitude
- * @property float|null $longitude
- * @property string|null $deadline
- * @property int $customer_id
- * @property int|null $executor_id
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID задачи.
+ * @property string $title Название задачи.
+ * @property string|null $description Описание задачи.
+ * @property int $category_id ID категории задачи.
+ * @property string|null $budget Бюджет задачи.
+ * @property string $status Статус задачи.
+ * @property int $city_id ID города задачи.
+ * @property string|null $location Местоположение задачи.
+ * @property float|null $latitude Широта местоположения задачи.
+ * @property float|null $longitude Долгота местоположения задачи.
+ * @property string|null $deadline Дедлайн задачи.
+ * @property int $customer_id ID заказчика.
+ * @property int|null $executor_id ID исполнителя.
+ * @property string|null $created_at Дата создания.
+ * @property string|null $updated_at Дата изменения.
  *
- * @property Category $category
- * @property City $city
- * @property User $customer
- * @property User $executor
- * @property File[] $files
- * @property Response[] $responses
- * @property Review[] $reviews
+ * @property Category $category Категория задачи.
+ * @property City $city Город задачи.
+ * @property User $customer Заказчик задачи.
+ * @property User $executor Исполнитель задачи.
+ * @property File[] $files Файлы, прикрепленные к задаче.
+ * @property Response[] $responses Отклики на задачу.
+ * @property Review[] $reviews Отзывы о задачи.
  */
 class Task extends ActiveRecord
 {
     /**
+     * Возвращает имя таблицы в базе данных.
+     *
+     * @return string Имя таблицы в базе данных.
+     */
+    public static function tableName(): string
+    {
+        return 'tasks';
+    }
+
+    /**
+     * Начинает выполнение задачи и назначает исполнителя.
+     *
+     * @param int $executorId Идентификатор исполнителя.
+     * @return bool Возвращает true, если задача успешно сохранена, иначе - false.
      * @throws Exception
      */
     public function startWork(int $executorId): bool
@@ -48,6 +61,9 @@ class Task extends ActiveRecord
     }
 
     /**
+     * Помечает задачу как проваленную.
+     *
+     * @return bool Возвращает true, если задача успешно сохранена, иначе - false.
      * @throws Exception
      */
     public function failTask(): bool
@@ -57,6 +73,9 @@ class Task extends ActiveRecord
     }
 
     /**
+     * Отменяет задачу.
+     *
+     * @return bool Возвращает true, если задача успешно сохранена, иначе - false.
      * @throws Exception
      */
     public function cancelTask(): bool
@@ -66,15 +85,9 @@ class Task extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public static function tableName(): string
-    {
-        return 'tasks';
-    }
-
-    /**
-     * {@inheritdoc}
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -96,7 +109,9 @@ class Task extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -120,7 +135,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Category]].
+     * Получает запрос для [[Category]].
      *
      * @return ActiveQuery
      */
@@ -130,7 +145,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[City]].
+     * Получает запрос для [[City]].
      *
      * @return ActiveQuery
      */
@@ -140,7 +155,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Customer]].
+     * Получает запрос для [[Customer]].
      *
      * @return ActiveQuery
      */
@@ -150,7 +165,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Executor]].
+     * Получает запрос для [[Executor]].
      *
      * @return ActiveQuery
      */
@@ -160,7 +175,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Files]].
+     * Получает запрос для [[Files]].
      *
      * @return ActiveQuery
      */
@@ -170,7 +185,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Responses]].
+     * Получает запрос для [[Responses]].
      *
      * @return ActiveQuery
      */
@@ -180,7 +195,7 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Reviews]].
+     * Получает запрос для [[Reviews]].
      *
      * @return ActiveQuery
      */

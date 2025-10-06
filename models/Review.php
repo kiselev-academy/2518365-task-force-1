@@ -2,32 +2,31 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "reviews".
+ * Класс модели для таблицы "reviews".
  *
- * @property int $id
- * @property int $task_id
- * @property int $customer_id
- * @property int $executor_id
- * @property int|null $rating
- * @property string|null $comment
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID отзыва.
+ * @property int $task_id ID задачи.
+ * @property int $customer_id ID заказчика.
+ * @property int $executor_id ID исполнителя.
+ * @property int|null $rating Рейтинг
+ * @property string|null $comment Комментарий
+ * @property string|null $created_at Дата создания.
+ * @property string|null $updated_at Дата изменения.
  *
- * @property User $customer
- * @property User $executor
- * @property Task $task
+ * @property User $customer Заказчик
+ * @property User $executor Исполнитель
+ * @property Task $task Задача
  */
 class Review extends ActiveRecord
 {
-
-
     /**
-     * {@inheritdoc}
+     * Возвращает имя таблицы в базе данных.
+     *
+     * @return string Имя таблицы в базе данных.
      */
     public static function tableName(): string
     {
@@ -35,7 +34,9 @@ class Review extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -52,7 +53,9 @@ class Review extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -69,7 +72,7 @@ class Review extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Customer]].
+     * Получает запрос для [[Customer]].
      *
      * @return ActiveQuery
      */
@@ -79,7 +82,7 @@ class Review extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Executor]].
+     * Получает запрос для [[Executor]].
      *
      * @return ActiveQuery
      */
@@ -89,7 +92,7 @@ class Review extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Task]].
+     * Получает запрос для [[Task]].
      *
      * @return ActiveQuery
      */

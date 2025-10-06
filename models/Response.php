@@ -2,25 +2,24 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 
 /**
- * This is the model class for table "responses".
+ * Класс модели для таблицы "responses".
  *
- * @property int $id
- * @property int $task_id
- * @property int $executor_id
- * @property int|null $price
- * @property string|null $comment
- * @property string $status
- * @property string|null $created_at
- * @property string|null $updated_at
+ * @property int $id ID отклика.
+ * @property int $task_id ID задачи.
+ * @property int $executor_id ID исполнителя.
+ * @property int|null $price Цена.
+ * @property string|null $comment Комментарий.
+ * @property string $status Статус.
+ * @property string|null $created_at Дата создания.
+ * @property string|null $updated_at Дата изменения.
  *
- * @property User $executor
- * @property Task $task
+ * @property User $executor Исполнитель, оставивший отклик.
+ * @property Task $task Задача, на которую оставлен отклик.
  */
 class Response extends ActiveRecord
 {
@@ -29,6 +28,19 @@ class Response extends ActiveRecord
     const string STATUS_ACCEPTED = 'accepted';
 
     /**
+     * Возвращает имя таблицы в базе данных.
+     *
+     * @return string Имя таблицы в базе данных.
+     */
+    public static function tableName(): string
+    {
+        return 'responses';
+    }
+
+    /**
+     * Принимает отклик.
+     *
+     * @return bool
      * @throws Exception
      */
     public function accept(): bool
@@ -38,6 +50,9 @@ class Response extends ActiveRecord
     }
 
     /**
+     * Отклоняет отклик.
+     *
+     * @return bool
      * @throws Exception
      */
     public function reject(): bool
@@ -47,15 +62,9 @@ class Response extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public static function tableName(): string
-    {
-        return 'responses';
-    }
-
-    /**
-     * {@inheritdoc}
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
      */
     public function rules(): array
     {
@@ -73,7 +82,9 @@ class Response extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
      */
     public function attributeLabels(): array
     {
@@ -90,7 +101,7 @@ class Response extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Executor]].
+     * Получает запрос для [[Executor]].
      *
      * @return ActiveQuery
      */
@@ -100,7 +111,7 @@ class Response extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Task]].
+     * Получает запрос для [[Task]].
      *
      * @return ActiveQuery
      */

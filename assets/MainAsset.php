@@ -1,6 +1,7 @@
 <?php
 
 namespace app\assets;
+
 use yii\web\AssetBundle;
 
 class MainAsset extends AssetBundle

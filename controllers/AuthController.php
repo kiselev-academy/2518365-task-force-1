@@ -6,15 +6,16 @@ use app\models\User;
 use app\models\VkUser;
 use Yii;
 use yii\base\Exception;
-use yii\base\InvalidRouteException;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 class AuthController extends GuestController
 {
     /**
-     * @throws InvalidRouteException
-     * @throws BadRequestHttpException
+     * Метод обрабатывает запрос на авторизацию ВК.
+     *
+     * @return Response
+     * @throws BadRequestHttpException если возникает ошибка при работе с клиентом авторизации.
      */
     public function actionVk(): Response
     {
@@ -27,7 +28,10 @@ class AuthController extends GuestController
     }
 
     /**
-     * @throws BadRequestHttpException
+     * Метод обрабатывает запрос на вход пользователя через ВКонтакте.
+     *
+     * @return Response
+     * @throws BadRequestHttpException если возникает ошибка при авторизации через ВКонтакте.
      */
     public function actionLogin(): Response
     {
