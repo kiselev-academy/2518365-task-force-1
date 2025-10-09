@@ -41,7 +41,7 @@ class UsersController extends AuthorizedController
     public function actionEdit(): string|Response
     {
         $profileForm = new EditProfileForm();
-        $user = User::getCurrentUser();
+        $user = User::findOne(Yii::$app->user->getId());
 
         if (!Yii::$app->request->isPost) {
             return $this->render('edit', [
@@ -77,7 +77,7 @@ class UsersController extends AuthorizedController
     public function actionSecure(): string|Response
     {
         $secureForm = new SecureProfileForm();
-        $user = User::getCurrentUser();
+        $user = User::findOne(Yii::$app->user->getId());
 
         $secureForm->hiddenContacts = (bool)$user->hidden_contacts;
 

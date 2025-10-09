@@ -3,6 +3,7 @@
 namespace app\models\forms;
 
 use app\models\User;
+use app\services\FileUploader;
 use yii\base\Model;
 use yii\db\Exception;
 use yii\web\UploadedFile;
@@ -83,13 +84,17 @@ class EditProfileForm extends Model
             $user->specializations = implode(', ', $this->specializations);
         }
 
-        $newAvatar = UploadedFile::getInstance($this, 'avatar');
-        if ($newAvatar) {
-            $avatarPath = 'uploads/' .
-                $userId . '_' . uniqid('upload') . '.' .
-                $newAvatar->getExtension();
-            $newAvatar->saveAs($avatarPath);
-            $user->avatar = '/' . $avatarPath;
+        $uploader = new FileUploader();
+        $newAvatar = UploadedFile::getInstance($this, 'avatar') ?? null;
+
+        $avatarPath = $uploader->upload(
+            $newAvatar,
+            'uploads',
+            $user->id . '_' . uniqid('upload')
+        );
+
+        if ($avatarPath !== null) {
+            $user->avatar = $avatarPath;
         }
 
         return $user->save();

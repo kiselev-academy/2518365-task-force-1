@@ -14,7 +14,7 @@ use yii\widgets\Menu;
 
 $this->title = 'Taskforce';
 if (!Yii::$app->user->isGuest) {
-    $user = User::getCurrentUser();
+    $user = User::findOne(Yii::$app->user->getId());
 }
 ?>
 
@@ -58,7 +58,7 @@ if (!Yii::$app->user->isGuest) {
                     <p class="info-text">
                         <?= Yii::$app->formatter->format($task->created_at, 'relativeTime') ?>
                     </p>
-                    <p class="task-text"><?= $task->description ?></p>
+                    <p class="task-text"><?= Html::encode($task->description) ?></p>
                     <div class="footer-task">
                         <p class="info-text town-text">
                             <?= isset($task->city->name) ? $task->city->name : 'Удаленная работа' ?>

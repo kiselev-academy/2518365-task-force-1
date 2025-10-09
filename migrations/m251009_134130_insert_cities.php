@@ -4,6 +4,9 @@ use yii\db\Migration;
 
 class m251009_134130_insert_cities extends Migration
 {
+    /*
+     * Создание таблицы городов.
+     */
     public function safeUp(): void
     {
         $this->batchInsert('cities', ['name', 'latitude', 'longitude'], [
@@ -1097,6 +1100,9 @@ class m251009_134130_insert_cities extends Migration
         ]);
     }
 
+    /*
+     * Удаление таблицы городов.
+     */
     public function safeDown(): void
     {
         $this->dropTable('cities');

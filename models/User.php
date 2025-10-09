@@ -2,12 +2,12 @@
 
 namespace app\models;
 
+use app\services\UserRatingService;
 use TaskForce\Models\Task as TaskBasic;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
 use yii\web\IdentityInterface;
 
 /**
@@ -60,16 +60,6 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Возвращает текущего пользователя.
-     *
-     * @return User|null Текущий пользователь.
-     */
-    public static function getCurrentUser(): ?User
-    {
-        return User::findOne(Yii::$app->user->getId());
-    }
-
-    /**
      * Возвращает ID пользователя.
      *
      * @return int|null ID пользователя.
@@ -95,27 +85,12 @@ class User extends ActiveRecord implements IdentityInterface
      *
      * @param string $token Маркер доступа.
      * @param string|null $type Тип маркера доступа.
-     * @return User|null Возвращает null.
+     * @return User|null Возвращает User|null.
      * @throws NotSupportedException
      */
     public static function findIdentityByAccessToken($token, $type = null): ?User
     {
         throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
-    }
-
-    /**
-     * Генерирует HTML-строки с заполненными и пустыми звездочками, основываясь на рейтинге.
-     *
-     * @param float $rating значение рейтинга.
-     * @return string HTML-код со звездами.
-     */
-    public static function getUserStars(float $rating): string
-    {
-        $count = (int)round($rating);
-        $filledStars = "<span class=\"fill-star\">&nbsp;</span>";
-        $emptyStars = "<span>&nbsp;</span>";
-
-        return str_repeat($filledStars, $count) . str_repeat($emptyStars, 5 - $count);
     }
 
     /**
@@ -318,32 +293,6 @@ class User extends ActiveRecord implements IdentityInterface
         return Yii::$app->security->validatePassword($password, $this->password);
     }
 
-    /**
-     * Возвращает рейтинг пользователя.
-     *
-     * @return string Рейтинг пользователя.
-     */
-    public function getUserRating(): string
-    {
-        $sum = 0;
-        $reviews = $this->getExecutorReviews()->all();
-
-        foreach ($reviews as $review) {
-            $sum += (int)($review['rating'] ?? 0);
-        }
-
-        if ($sum < 0) {
-            return '0';
-        }
-
-        $reviewCount = (int)(count($reviews) + $this->failed_tasks);
-
-        if ($reviewCount > 0) {
-            return (string)round($sum / $reviewCount, 2);
-        }
-
-        return '0';
-    }
 
     /**
      * Получает запрос для [[executorReviews]].
@@ -353,82 +302,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function getExecutorReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['executor_id' => 'id']);
-    }
-
-    /**
-     * Увеличивает счетчик выполненных задач пользователя.
-     *
-     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
-     * @throws Exception
-     */
-    public function getCounterCompletedTasks(): bool
-    {
-        $this->successful_tasks += 1;
-        $this->updateTotalScore();
-        return $this->save();
-    }
-
-    /**
-     * Обновляет общий балл пользователя.
-     *
-     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
-     * @throws Exception
-     */
-    public function updateTotalScore(): bool
-    {
-        $totalScore = $this->calcTotalScore();
-        $this->total_score = $totalScore;
-        return $this->save();
-    }
-
-    /**
-     * Вычисляет общий балл пользователя.
-     *
-     * @return string Общий балл пользователя.
-     */
-    public function calcTotalScore(): string
-    {
-        $reviews = $this->getExecutorReviews()->all();
-        $sumRating = array_sum(array_column($reviews, 'rating'));
-        $totalReviews = count($reviews);
-        $totalScore = 0;
-        if ($totalReviews > 0) {
-            $totalScore = (string)round($sumRating / $totalReviews, 2);
-        }
-        return $totalScore;
-    }
-
-    /**
-     * Увеличивает счетчик проваленных задач пользователя.
-     *
-     * @return bool Возвращает true, если обновление прошло успешно, иначе false.
-     * @throws Exception
-     */
-    public function getCounterFailedTasks(): bool
-    {
-        $this->failed_tasks += 1;
-        $this->updateTotalScore();
-        return $this->save();
-    }
-
-    /**
-     * Возвращает место в рейтинге на основе общего балла.
-     *
-     * @return int Место в рейтинге.
-     */
-    public function getUserRank(): int
-    {
-        $users = User::find()->orderBy(['total_score' => SORT_DESC, 'id' => SORT_ASC])->all();
-
-        $rank = 1;
-        foreach ($users as $user) {
-            if ($user->id === $this->id) {
-                return $rank;
-            }
-            $rank++;
-        }
-
-        return 0;
     }
 
     /**
@@ -443,6 +316,16 @@ class User extends ActiveRecord implements IdentityInterface
             return 'Занят';
         }
         return 'Открыт для новых заказов';
+    }
+
+    /**
+     * Получает экземпляр UserRatingService
+     *
+     * @return UserRatingService
+     */
+    public function getRatingService(): UserRatingService
+    {
+        return new UserRatingService($this);
     }
 
 }

@@ -15,10 +15,10 @@ class MyTasksController extends AuthorizedController
     private User $user;
     private TaskSearch $taskSearch;
 
-    public function __construct(string $id, Module $module)
+    public function __construct(string $id, Module $module, TaskSearch $taskSearch)
     {
-        $this->user = User::getCurrentUser();
-        $this->taskSearch = new TaskSearch();
+        $this->user = User::findOne(Yii::$app->user->getId());
+        $this->taskSearch = $taskSearch;
         parent::__construct($id, $module);
     }
 

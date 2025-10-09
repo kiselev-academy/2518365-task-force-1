@@ -1,9 +1,9 @@
 <?php
 
 use app\models\Category;
-use app\models\forms\UserView;
 use app\models\User;
-use app\models\widgets\RatingWidget;
+use app\services\UserView;
+use app\widgets\RatingWidget;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -23,9 +23,9 @@ if (!empty($user)) {
                 <?= Html::img($user->avatar, ['class' => 'card-photo', 'width' => 191, 'height' => 190, 'alt' => 'Фото пользователя']) ?>
                 <div class="card-rate">
                     <div class="stars-rating big">
-                        <?= RatingWidget::widget(['rating' => $user->getUserRating()]) ?>
+                        <?= RatingWidget::widget(['rating' => $user->getRatingService()->getUserRating()]) ?>
                     </div>
-                    <span class="current-rate"><?= $user->getUserRating() ?></span>
+                    <span class="current-rate"><?= $user->getRatingService()->getUserRating() ?></span>
                 </div>
             </div>
             <p class="user-description">
@@ -36,14 +36,16 @@ if (!empty($user)) {
             <div class="specialization">
                 <p class="head-info">Специализации</p>
                 <ul class="special-list">
+                    <?php if (is_array($categoriesId)): ?>
                     <?php foreach ($categoriesId as $categoryId): ?>
                         <li class="special-item">
                             <a href="<?= Url::to(['tasks/index', 'category' => $categoryId]) ?>"
                                class="link link--regular">
-                                <?= Category::getCategoryName($categoryId) ?>
+                                <?= Category::getCategoryName((int)$categoryId) ?>
                             </a>
                         </li>
                     <?php endforeach; ?>
+                    <?php endif; ?>
                 </ul>
             </div>
             <div class="bio">
@@ -76,7 +78,7 @@ if (!empty($user)) {
                     </div>
                     <div class="feedback-wrapper">
                         <div class="stars-rating small">
-                            <?= User::getUserStars($review->rating) ?>
+                            <?= RatingWidget::widget(['rating' => $review->rating]) ?>
                         </div>
                         <p class="info-text"><span class="current-time">
                         <?= Yii::$app->formatter->format(
@@ -99,7 +101,7 @@ if (!empty($user)) {
                         <?= $user->failed_tasks ? $user->failed_tasks : '0' ?> провалено
                     </dd>
                     <dt>Место в рейтинге</dt>
-                    <dd><?= $user->userRank ?> место</dd>
+                    <dd><?= $user->getRatingService()->getUserRank(); ?> место</dd>
                     <dt>Дата регистрации</dt>
                     <dd>
                         <?= Yii::$app->formatter->asDate(

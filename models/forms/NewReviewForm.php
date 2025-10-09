@@ -76,7 +76,7 @@ class NewReviewForm extends Model
      * @param int $executorId ID исполнителя.
      * @return Review Новый объект отзыва.
      */
-    public function newReview(int $taskId, int $executorId): Review
+    protected function newReview(int $taskId, int $executorId): Review
     {
         $review = new Review;
         $review->comment = $this->comment;

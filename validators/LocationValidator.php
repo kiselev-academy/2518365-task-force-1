@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\validators;
+namespace app\validators;
 
 use app\models\City;
 use app\services\Geocoder;

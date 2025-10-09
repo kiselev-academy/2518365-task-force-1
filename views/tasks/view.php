@@ -2,10 +2,9 @@
 
 use app\assets\MainAsset;
 use app\assets\YandexMapAsset;
-use app\models\forms\UserView;
-use app\models\User;
-use app\models\widgets\FileListWidget;
-use app\models\widgets\ResponseCardWidget;
+use app\services\UserView;
+use app\widgets\FileListWidget;
+use app\widgets\ResponseCardWidget;
 use TaskForce\Models\Task as TaskBasic;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -16,10 +15,6 @@ YandexMapAsset::register($this);
 
 
 $this->title = "Taskforce";
-
-if (!Yii::$app->user->isGuest) {
-    $user = User::getCurrentUser();
-}
 
 ?>
 <?php if (!empty($task)): ?>

@@ -4,6 +4,9 @@ use yii\db\Migration;
 
 class m251009_132500_create_initial_schema extends Migration
 {
+    /*
+     * Создание таблиц БД.
+     */
     public function safeUp(): void
     {
         $this->createTable('cities', [
@@ -106,6 +109,9 @@ class m251009_132500_create_initial_schema extends Migration
         $this->execute("CREATE FULLTEXT INDEX task_description_search ON tasks(description);");
     }
 
+    /*
+     * Удаление таблиц БД.
+     */
     public function safeDown(): void
     {
         $this->execute("DROP INDEX IF EXISTS task_title_search ON tasks;");

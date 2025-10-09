@@ -1,11 +1,11 @@
 <?php
 
-namespace app\models\widgets;
+namespace app\widgets;
 
-use app\models\forms\UserView;
 use app\models\Response;
 use app\models\Task;
 use app\models\User;
+use app\services\UserView;
 use yii\base\Widget;
 
 

@@ -4,6 +4,9 @@ use yii\db\Migration;
 
 class m251009_133308_insert_categories extends Migration
 {
+    /*
+     * Добавление таблицы категорий в БД.
+     */
     public function safeUp(): void
     {
         $this->batchInsert('categories', ['name', 'icon'], [
@@ -18,6 +21,9 @@ class m251009_133308_insert_categories extends Migration
         ]);
     }
 
+    /*
+     * Удаление таблицы категорий БД.
+     */
     public function safeDown(): void
     {
         $this->delete('categories', ['name' => [

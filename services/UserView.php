@@ -1,10 +1,11 @@
 <?php
 
-namespace app\models\forms;
+namespace app\services;
 
 use app\models\Response;
 use app\models\User;
 use TaskForce\Models\Task as TaskBasic;
+use Yii;
 
 class UserView
 {
@@ -132,7 +133,7 @@ class UserView
             return true;
         }
 
-        $currentUser = User::getCurrentUser();
+        $currentUser = User::findOne(Yii::$app->user->getId());
         if ($userId === $currentUser->id) {
             return true;
         }

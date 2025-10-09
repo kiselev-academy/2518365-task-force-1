@@ -80,7 +80,7 @@ class RegistrationForm extends Model
      *
      * @return User Новый объект пользователя.
      */
-    public function getUser(): User
+    protected function getUser(): User
     {
         $user = new User;
         $user->name = $this->name;

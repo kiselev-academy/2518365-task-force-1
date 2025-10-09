@@ -6,6 +6,7 @@ use app\models\Category;
 use app\models\City;
 use app\models\File;
 use app\models\Task;
+use app\services\FileUploader;
 use app\services\Geocoder;
 use GuzzleHttp\Exception\GuzzleException;
 use TaskForce\Models\Task as TaskBasic;
@@ -61,7 +62,7 @@ class NewTaskForm extends Model
                 'message' => 'Срок выполнения не может быть в прошлом'],
             [['files'], 'file', 'maxFiles' => 0],
             [['title', 'description', 'category', 'location', 'budget', 'deadline'], 'filter', 'filter' => 'strip_tags'],
-            ['location', \app\models\validators\LocationValidator::class],
+            ['location', \app\validators\LocationValidator::class],
         ];
     }
 
@@ -82,12 +83,14 @@ class NewTaskForm extends Model
         }
         $newTask = $this->newTask();
         $newTask->save(false);
+        $uploader = new FileUploader();
+
         if ($files) {
             foreach ($files as $file) {
-                $newFileName = uniqid('upload') . '.' . $file->getExtension();
-                $file->saveAs('@webroot/uploads/' . $newFileName);
-                $filePath = '/uploads/' . $newFileName;
-                File::saveFile($filePath, $newTask->id);
+                $savedPath = $uploader->upload($file);
+                if ($savedPath) {
+                    File::saveFile($savedPath, $newTask->id);
+                }
             }
         }
         return $newTask->id;
@@ -100,7 +103,7 @@ class NewTaskForm extends Model
      * @throws GuzzleException
      * @throws \JsonException
      */
-    public function newTask(): Task
+    protected function newTask(): Task
     {
         $task = new Task;
         $task->title = $this->title;
@@ -113,22 +116,19 @@ class NewTaskForm extends Model
 
         $locationData = Geocoder::getLocationData($this->location);
 
-        if (isset($locationData['city'])) {
-            $city = City::findOne(['name' => $locationData['city']]);
-            if ($city) {
-                $task->city_id = $city->id;
-            }
+        if (!isset($locationData['city'])) {
+            return $task;
+        }
+        $city = City::findOne(['name' => $locationData['city']]);
+        if ($city) {
+            $task->city_id = $city->id;
         }
 
         if (isset($locationData['address'])) {
             $task->location = $locationData['address'];
         }
 
-        if (
-            isset($locationData['coordinates']) &&
-            is_array($locationData['coordinates']) &&
-            count($locationData['coordinates']) >= 2
-        ) {
+        if (isset($locationData['coordinates'])) {
             $task->longitude = $locationData['coordinates'][0];
             $task->latitude = $locationData['coordinates'][1];
         }
