@@ -1,7 +1,7 @@
 <?php
 
-use app\models\forms\UserView;
-use app\models\widgets\RatingWidget;
+use app\services\UserView;
+use app\widgets\RatingWidget;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -26,7 +26,7 @@ use yii\helpers\Url;
         </a>
         <div class="response-wrapper">
             <div class="stars-rating small">
-                <?= RatingWidget::widget(['rating' => $response->executor->getUserRating()]) ?>
+                <?= RatingWidget::widget(['rating' => $response->executor->getRatingService()->getUserRating()]) ?>
             </div>
             <p class="reviews">
                 <?= Yii::t('app', '{n, plural, =0{# отзывов} one{# отзыв} =2{# отзыва} =3{# отзыва} =4{# отзыва} few{# отзыва} many{# отзывов} other{# отзывов}}', ['n' => $response->executor->getExecutorReviews()->count()]); ?>

@@ -92,15 +92,15 @@ class Task extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['description', 'budget', 'location', 'latitude', 'longitude', 'deadline', 'executor_id'], 'default', 'value' => null],
+            [['description', 'budget', 'city_id', 'location', 'latitude', 'longitude', 'deadline', 'executor_id'], 'default', 'value' => null],
             [['status'], 'default', 'value' => 'new'],
-            [['title', 'category_id', 'city_id', 'customer_id'], 'required'],
+            [['title', 'category_id', 'customer_id'], 'required'],
             [['description'], 'string'],
-            [['category_id', 'city_id', 'customer_id', 'executor_id'], 'integer'],
+            [['category_id', 'budget', 'city_id', 'customer_id', 'executor_id'], 'integer'],
             [['latitude', 'longitude'], 'number'],
             [['deadline', 'created_at', 'updated_at'], 'safe'],
             [['title', 'location'], 'string', 'max' => 255],
-            [['budget', 'status'], 'string', 'max' => 128],
+            [['status'], 'string', 'max' => 128],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['customer_id' => 'id']],

@@ -50,16 +50,14 @@ class TasksController extends AuthorizedController
      */
     public function actionIndex(?int $category = null): string
     {
-        $TaskSearch = new TaskSearch();
-        $result = $TaskSearch->getTasks($category);
+        $taskSearch = new TaskSearch();
+        $dataProvider = $taskSearch->getTasks($category);
         $filter = new TasksFilter();
 
         $categoriesQuery = Category::find()->select(['id', 'name'])->all();
         $categories = ArrayHelper::map($categoriesQuery, 'id', 'name');
-        $tasks = $result['tasks'];
-        $pagination = $result['pagination'];
 
-        return $this->render('index', compact('tasks', 'filter', 'categories', 'pagination'));
+        return $this->render('index', compact('dataProvider', 'filter', 'categories'));
     }
 
     /**
@@ -78,8 +76,9 @@ class TasksController extends AuthorizedController
         $files = File::find()->where(['task_id' => $task->id])->all();
         $responseForm = new NewResponseForm();
         $reviewForm = new NewReviewForm();
+        $user = User::findOne(Yii::$app->user->getId());
 
-        return $this->render('view', compact('task', 'files', 'responseForm', 'reviewForm'));
+        return $this->render('view', compact('task', 'files', 'responseForm', 'reviewForm', 'user'));
     }
 
     /**
@@ -154,7 +153,7 @@ class TasksController extends AuthorizedController
         if (!$user) {
             throw new NotFoundHttpException("Нет пользователя с id $executorId");
         }
-        if (!$user->getCounterCompletedTasks()) {
+        if (!$user->getRatingService()->getCounterCompletedTasks()) {
             throw new BadRequestHttpException('Не удалось сохранить данные');
         }
 
@@ -241,7 +240,7 @@ class TasksController extends AuthorizedController
         if (!$user) {
             throw new NotFoundHttpException("Нет пользователя с id $executorId");
         }
-        if (!$user->getCounterFailedTasks()) {
+        if (!$user->getRatingService()->getCounterFailedTasks()) {
             throw new BadRequestHttpException('Не удалось сохранить данные');
         }
 

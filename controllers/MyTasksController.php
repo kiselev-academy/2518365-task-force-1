@@ -13,12 +13,12 @@ use yii\web\Response;
 class MyTasksController extends AuthorizedController
 {
     private User $user;
-    private TaskSearch $TaskSearch;
+    private TaskSearch $taskSearch;
 
-    public function __construct(string $id, Module $module)
+    public function __construct(string $id, Module $module, TaskSearch $taskSearch)
     {
-        $this->user = User::getCurrentUser();
-        $this->TaskSearch = new TaskSearch();
+        $this->user = User::findOne(Yii::$app->user->getId());
+        $this->taskSearch = $taskSearch;
         parent::__construct($id, $module);
     }
 
@@ -46,13 +46,12 @@ class MyTasksController extends AuthorizedController
      */
     public function actionNew(): ?string
     {
-        $result = $this->TaskSearch->getUserTasks($this->user->id, $this->user->role, [
+        $dataProvider = $this->taskSearch->getUserTasks($this->user->id, $this->user->role, [
             TaskBasic::STATUS_NEW,
         ]);
 
         return $this->render('index', [
-            'tasks' => $result['tasks'],
-            'pagination' => $result['pagination'],
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -63,13 +62,12 @@ class MyTasksController extends AuthorizedController
      */
     public function actionWork(): ?string
     {
-        $result = $this->TaskSearch->getUserTasks($this->user->id, $this->user->role, [
+        $dataProvider = $this->taskSearch->getUserTasks($this->user->id, $this->user->role, [
             TaskBasic::STATUS_WORK,
         ]);
 
         return $this->render('index', [
-            'tasks' => $result['tasks'],
-            'pagination' => $result['pagination'],
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -80,15 +78,14 @@ class MyTasksController extends AuthorizedController
      */
     public function actionClosed(): ?string
     {
-        $result = $this->TaskSearch->getUserTasks($this->user->id, $this->user->role, [
+        $dataProvider = $this->taskSearch->getUserTasks($this->user->id, $this->user->role, [
             TaskBasic::STATUS_CANCELLED,
             TaskBasic::STATUS_COMPLETED,
             TaskBasic::STATUS_FAILED,
         ]);
 
         return $this->render('index', [
-            'tasks' => $result['tasks'],
-            'pagination' => $result['pagination'],
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -99,13 +96,12 @@ class MyTasksController extends AuthorizedController
      */
     public function actionOverdue(): ?string
     {
-        $result = $this->TaskSearch->getUserTasks($this->user->id, $this->user->role, [
+        $dataProvider = $this->taskSearch->getUserTasks($this->user->id, $this->user->role, [
             TaskBasic::STATUS_WORK,
         ], true);
 
         return $this->render('index', [
-            'tasks' => $result['tasks'],
-            'pagination' => $result['pagination'],
+            'dataProvider' => $dataProvider,
         ]);
     }
 }

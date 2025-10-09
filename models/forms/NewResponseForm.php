@@ -62,7 +62,7 @@ class NewResponseForm extends Model
      * @param int $taskId ID задачи.
      * @return Response Экземпляр отклика.
      */
-    public function newResponse(int $taskId): Response
+    protected function newResponse(int $taskId): Response
     {
         $response = new Response;
         $response->comment = $this->comment;

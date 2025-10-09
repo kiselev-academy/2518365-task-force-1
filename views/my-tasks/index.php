@@ -1,5 +1,11 @@
 <?php
 
+/** @var yii\web\View $this */
+
+/** @var yii\data\ActiveDataProvider $dataProvider */
+
+/** @var $task */
+
 use app\models\User;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -8,7 +14,7 @@ use yii\widgets\Menu;
 
 $this->title = 'Taskforce';
 if (!Yii::$app->user->isGuest) {
-    $user = User::getCurrentUser();
+    $user = User::findOne(Yii::$app->user->getId());
 }
 ?>
 
@@ -38,6 +44,7 @@ if (!Yii::$app->user->isGuest) {
 
     <div class="left-column left-column--task">
         <h3 class="head-main head-regular">Новые задания</h3>
+        <?php $tasks = $dataProvider->getModels(); ?>
         <?php if (!empty($tasks)): ?>
             <?php foreach ($tasks as $task): ?>
                 <div class="task-card">
@@ -51,7 +58,7 @@ if (!Yii::$app->user->isGuest) {
                     <p class="info-text">
                         <?= Yii::$app->formatter->format($task->created_at, 'relativeTime') ?>
                     </p>
-                    <p class="task-text"><?= $task->description ?></p>
+                    <p class="task-text"><?= Html::encode($task->description) ?></p>
                     <div class="footer-task">
                         <p class="info-text town-text">
                             <?= isset($task->city->name) ? $task->city->name : 'Удаленная работа' ?>
@@ -68,7 +75,7 @@ if (!Yii::$app->user->isGuest) {
 
         <div class="pagination-wrapper">
             <?= LinkPager::widget([
-                'pagination' => $pagination,
+                'pagination' => $dataProvider->pagination,
                 'options' => ['class' => 'pagination-list'],
                 'linkOptions' => ['class' => 'link link--page',],
                 'linkContainerOptions' => ['class' => 'pagination-item'],

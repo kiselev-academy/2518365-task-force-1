@@ -18,6 +18,11 @@ class RegistrationForm extends Model
     public string $passwordRepeat = '';
     public bool $isExecutor = false;
 
+    /**
+     * Возвращает список меток атрибутов.
+     *
+     * @return array Список меток атрибутов.
+     */
     public function attributeLabels(): array
     {
         return [
@@ -30,6 +35,11 @@ class RegistrationForm extends Model
         ];
     }
 
+    /**
+     * Возвращает список правил валидации для атрибутов модели.
+     *
+     * @return array Список правил валидации.
+     */
     public function rules(): array
     {
         return [
@@ -49,6 +59,7 @@ class RegistrationForm extends Model
     }
 
     /**
+     * Создает и сохраняет нового пользователя на основе данных формы.
      * @throws Exception
      * @throws InvalidRouteException
      * @throws \yii\base\Exception
@@ -64,7 +75,12 @@ class RegistrationForm extends Model
         }
     }
 
-    public function getUser(): User
+    /**
+     * Создает новый объект пользователя на основе данных формы.
+     *
+     * @return User Новый объект пользователя.
+     */
+    protected function getUser(): User
     {
         $user = new User;
         $user->name = $this->name;
