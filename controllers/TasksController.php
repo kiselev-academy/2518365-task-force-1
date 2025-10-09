@@ -50,16 +50,14 @@ class TasksController extends AuthorizedController
      */
     public function actionIndex(?int $category = null): string
     {
-        $TaskSearch = new TaskSearch();
-        $result = $TaskSearch->getTasks($category);
+        $taskSearch = new TaskSearch();
+        $dataProvider = $taskSearch->getTasks($category);
         $filter = new TasksFilter();
 
         $categoriesQuery = Category::find()->select(['id', 'name'])->all();
         $categories = ArrayHelper::map($categoriesQuery, 'id', 'name');
-        $tasks = $result['tasks'];
-        $pagination = $result['pagination'];
 
-        return $this->render('index', compact('tasks', 'filter', 'categories', 'pagination'));
+        return $this->render('index', compact('dataProvider', 'filter', 'categories'));
     }
 
     /**

@@ -28,7 +28,8 @@ class VkUser extends Model
             $birthdayDate = \DateTime::createFromFormat('d.m.Y', $userData['bdate']);
         }
         $user->birthday = $birthdayDate ? $birthdayDate->format('Y-m-d') : null;
-        $user->password = Yii::$app->getSecurity()->generatePasswordHash('password');
+        $randomPassword = Yii::$app->getSecurity()->generateRandomString(8);
+        $user->password = Yii::$app->getSecurity()->generatePasswordHash($randomPassword);
         $user->city_id = City::getIdByName($userData['city']['title']);
         $user->vk_id = $userData['user_id'];
         $user->avatar = $userData['photo'];

@@ -6,7 +6,7 @@ use app\models\forms\TasksFilter;
 use TaskForce\Models\Task as TaskBasic;
 use Yii;
 use yii\base\Model;
-use yii\data\Pagination;
+use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 
 class TaskSearch extends Model
@@ -14,58 +14,56 @@ class TaskSearch extends Model
     /**
      * Метод, который возвращает список задач, удовлетворяющих заданным условиям. По умолчанию (без фильтрации) возвращает список задач в статусе "Новые" без привязки к городу, а также из города пользователя.
      *
-     * @return array Массив с задачами и информацией о пагинации.
+     * @return ActiveDataProvider DataProvider с задачами по фильтру.
      */
-    public function getTasks(?int $category = null): array
+    public function getTasks(?int $category = null): ActiveDataProvider
     {
-        $tasks = Task::find()
+        $query = Task::find()
             ->where(['tasks.status' => TaskBasic::STATUS_NEW])
             ->orderBy(['created_at' => SORT_DESC])
             ->with('category')
             ->with('city');
 
         if ($category) {
-            $tasks = $tasks->andWhere(['category_id' => $category]);
+            $query = $query->andWhere(['category_id' => $category]);
         }
 
         $request = Yii::$app->getRequest();
 
         $categories = ($request->get('TasksFilter')['categories'] ?? []);
         if (!empty($categories)) {
-            $tasks = $tasks->andWhere(['in', 'category_id', $categories]);
+            $query = $query->andWhere(['in', 'category_id', $categories]);
         }
 
         $distantWork = ($request->get('TasksFilter')['distantWork'] ?? []);
         if (!empty($distantWork)) {
-            $tasks = $tasks->andWhere(['city_id' => null]);
+            $query = $query->andWhere(['city_id' => null]);
         }
 
         $noResponse = ($request->get('TasksFilter')['noResponse'] ?? []);
         if (!empty($noResponse)) {
-            $tasks->joinWith('responses')
+            $query->joinWith('responses')
                 ->groupBy('tasks.id')
                 ->having('COUNT(responses.id) = 0');
         }
 
         $period = ($request->get('TasksFilter')['period'] ?? []);
         if (!empty($period) && $period !== TasksFilter::ALL_TIME) {
-            $tasks = $tasks->andWhere(['>', 'created_at', new Expression("CURRENT_TIMESTAMP() - INTERVAL $period")]);
-
+            list($value, $unit) = explode(' ', $period);
+            $query = $query->andWhere(
+                "created_at > CURRENT_TIMESTAMP() - INTERVAL :value {$unit}"
+            )->addParams([':value' => (int)$value]);
         }
 
-        $pagination = new Pagination([
-            'totalCount' => $tasks->count(),
-            'pageSize' => 5,
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 5,
+            ],
+            'sort' => [
+                'defaultOrder' => ['created_at' => SORT_DESC],
+            ],
         ]);
-
-        $tasks = $tasks->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        return [
-            'tasks' => $tasks,
-            'pagination' => $pagination,
-        ];
     }
 
     /**
@@ -75,11 +73,11 @@ class TaskSearch extends Model
      * @param string $role Роль пользователя (исполнитель или заказчик).
      * @param array $statuses Массив с допустимыми статусами задач.
      * @param bool $isOverdue Флаг для фильтрации просроченных задач.
-     * @return array Массив с задачами и информацией о пагинации.
+     * @return ActiveDataProvider DataProvider с задачами пользователя по фильтру.
      */
-    public function getUserTasks(int $userId, string $role, array $statuses, bool $isOverdue = false): array
+    public function getUserTasks(int $userId, string $role, array $statuses, bool $isOverdue = false): ActiveDataProvider
     {
-        $tasks = Task::find()
+        $query = Task::find()
             ->andWhere(['in', 'status', $statuses])
             ->andWhere([$role . '_id' => $userId])
             ->orderBy(['created_at' => SORT_DESC])
@@ -87,21 +85,17 @@ class TaskSearch extends Model
             ->with('city');
 
         if ($isOverdue) {
-            $tasks = $tasks->andWhere(['<', 'deadline', new Expression('CURRENT_TIMESTAMP()')]);
+            $query = $query->andWhere(['<', 'deadline', new Expression('CURRENT_TIMESTAMP()')]);
         }
 
-        $pagination = new Pagination([
-            'totalCount' => $tasks->count(),
-            'pageSize' => 5,
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 5,
+            ],
+            'sort' => [
+                'defaultOrder' => ['created_at' => SORT_DESC],
+            ],
         ]);
-
-        $tasks = $tasks->offset($pagination->offset)
-            ->limit($pagination->limit)
-            ->all();
-
-        return [
-            'tasks' => $tasks,
-            'pagination' => $pagination,
-        ];
     }
 }

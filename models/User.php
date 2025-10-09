@@ -111,7 +111,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function getUserStars(float $rating): string
     {
-        $count = round($rating);
+        $count = (int)round($rating);
         $filledStars = "<span class=\"fill-star\">&nbsp;</span>";
         $emptyStars = "<span>&nbsp;</span>";
 
@@ -288,7 +288,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * Возвращает ключ аутентификации.
      *
-     * @return string|null Возвращает null.
+     * @return string|null Возвращает string|null.
      * @throws \yii\base\Exception
      */
     public function getAuthKey(): ?string
@@ -300,7 +300,7 @@ class User extends ActiveRecord implements IdentityInterface
      * Валидирует ключ аутентификации.
      *
      * @param string $authKey Ключ аутентификации.
-     * @return bool Возвращает false.
+     * @return bool Возвращает true|false.
      */
     public function validateAuthKey($authKey): bool
     {
@@ -329,18 +329,20 @@ class User extends ActiveRecord implements IdentityInterface
         $reviews = $this->getExecutorReviews()->all();
 
         foreach ($reviews as $review) {
-            $sum += $review['rating'] ?? 0;
+            $sum += (int)($review['rating'] ?? 0);
         }
 
         if ($sum < 0) {
-            return 0;
+            return '0';
         }
 
-        if (count($reviews) + $this->failed_tasks) {
-            return round($sum / (count($reviews) + $this->failed_tasks), 2);
+        $reviewCount = (int)(count($reviews) + $this->failed_tasks);
+
+        if ($reviewCount > 0) {
+            return (string)round($sum / $reviewCount, 2);
         }
 
-        return 0;
+        return '0';
     }
 
     /**
@@ -391,7 +393,7 @@ class User extends ActiveRecord implements IdentityInterface
         $totalReviews = count($reviews);
         $totalScore = 0;
         if ($totalReviews > 0) {
-            $totalScore = round($sumRating / $totalReviews, 2);
+            $totalScore = (string)round($sumRating / $totalReviews, 2);
         }
         return $totalScore;
     }
@@ -420,7 +422,7 @@ class User extends ActiveRecord implements IdentityInterface
 
         $rank = 1;
         foreach ($users as $user) {
-            if ($user->id == $this->id) {
+            if ($user->id === $this->id) {
                 return $rank;
             }
             $rank++;
@@ -429,6 +431,11 @@ class User extends ActiveRecord implements IdentityInterface
         return 0;
     }
 
+    /**
+     * Возвращает статус пользователя.
+     *
+     * @return string Статус пользователя.
+     */
 
     public function getUserStatus(): string
     {

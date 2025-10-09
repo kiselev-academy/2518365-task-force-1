@@ -107,11 +107,28 @@ class NewTaskForm extends Model
         $task->description = $this->description;
         $task->category_id = $this->category;
 
-        if ($this->location) {
-            $locationData = Geocoder::getLocationData($this->location);
+        if (!$this->location) {
+            return $task;
+        }
 
-            $task->city_id = City::findOne(['name' => $locationData['city']])->id;
+        $locationData = Geocoder::getLocationData($this->location);
+
+        if (isset($locationData['city'])) {
+            $city = City::findOne(['name' => $locationData['city']]);
+            if ($city) {
+                $task->city_id = $city->id;
+            }
+        }
+
+        if (isset($locationData['address'])) {
             $task->location = $locationData['address'];
+        }
+
+        if (
+            isset($locationData['coordinates']) &&
+            is_array($locationData['coordinates']) &&
+            count($locationData['coordinates']) >= 2
+        ) {
             $task->longitude = $locationData['coordinates'][0];
             $task->latitude = $locationData['coordinates'][1];
         }

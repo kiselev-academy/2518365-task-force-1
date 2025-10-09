@@ -1,5 +1,11 @@
 <?php
 
+/** @var yii\web\View $this */
+
+/** @var yii\data\ActiveDataProvider $dataProvider */
+
+/** @var $task */
+
 use app\models\User;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -38,6 +44,7 @@ if (!Yii::$app->user->isGuest) {
 
     <div class="left-column left-column--task">
         <h3 class="head-main head-regular">Новые задания</h3>
+        <?php $tasks = $dataProvider->getModels(); ?>
         <?php if (!empty($tasks)): ?>
             <?php foreach ($tasks as $task): ?>
                 <div class="task-card">
@@ -68,7 +75,7 @@ if (!Yii::$app->user->isGuest) {
 
         <div class="pagination-wrapper">
             <?= LinkPager::widget([
-                'pagination' => $pagination,
+                'pagination' => $dataProvider->pagination,
                 'options' => ['class' => 'pagination-list'],
                 'linkOptions' => ['class' => 'link link--page',],
                 'linkContainerOptions' => ['class' => 'pagination-item'],

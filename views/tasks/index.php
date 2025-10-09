@@ -19,6 +19,7 @@ $this->title = 'Taskforce';
 <main class="main-content container">
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
+        <?php $tasks = $dataProvider->getModels(); ?>
         <?php if (!empty($tasks)): ?>
             <?php foreach ($tasks as $task): ?>
                 <div class="task-card">
@@ -48,7 +49,7 @@ $this->title = 'Taskforce';
 
         <div class="pagination-wrapper">
             <?= LinkPager::widget([
-                'pagination' => $pagination,
+                'pagination' => $dataProvider->pagination,
                 'options' => ['class' => 'pagination-list'],
                 'linkOptions' => ['class' => 'link link--page',],
                 'linkContainerOptions' => ['class' => 'pagination-item'],
