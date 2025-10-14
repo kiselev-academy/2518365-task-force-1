@@ -22,7 +22,7 @@ $this->title = "Taskforce";
         <div class="left-column">
             <div class="head-wrapper">
                 <h3 class="head-main"><?= Html::encode($task->title) ?></h3>
-                <p class="price price--big"><?= Html::encode(Yii::$app->formatter->asCurrency($task->budget)) ?? '' ?></p>
+                <p class="price price--big"><?= Html::encode($task->budget ? (Yii::$app->formatter->asCurrency($task->budget)) : 'Без бюджета' )?></p>
             </div>
             <p class="task-description">
                 <?= Html::encode($task->description) ?>

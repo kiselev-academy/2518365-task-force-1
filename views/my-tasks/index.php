@@ -52,7 +52,7 @@ if (!Yii::$app->user->isGuest) {
                         <a href="<?= Url::toRoute(['/tasks/view/', 'id' => $task->id]) ?>"
                            class="link link--block link--big"><?= Html::encode($task->title) ?></a>
                         <p class="price price--task">
-                            <?= Html::encode(Yii::$app->formatter->asCurrency($task->budget)) ?? '' ?>
+                            <?=Html::encode($task->budget ? (Yii::$app->formatter->asCurrency($task->budget)) : 'Без бюджета' )?>
                         </p>
                     </div>
                     <p class="info-text">

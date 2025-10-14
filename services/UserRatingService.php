@@ -2,9 +2,7 @@
 
 namespace app\services;
 
-use app\models\Task;
 use app\models\User;
-use TaskForce\Models\Task as TaskBasic;
 use yii\db\Exception;
 
 class UserRatingService

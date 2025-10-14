@@ -109,30 +109,11 @@ class NewTaskForm extends Model
         $task->title = $this->title;
         $task->description = $this->description;
         $task->category_id = $this->category;
-
-        if (!$this->location) {
-            return $task;
-        }
-
-        $locationData = Geocoder::getLocationData($this->location);
-
-        if (!isset($locationData['city'])) {
-            return $task;
-        }
-        $city = City::findOne(['name' => $locationData['city']]);
-        if ($city) {
-            $task->city_id = $city->id;
-        }
-
-        if (isset($locationData['address'])) {
-            $task->location = $locationData['address'];
-        }
-
-        if (isset($locationData['coordinates'])) {
-            $task->longitude = $locationData['coordinates'][0];
-            $task->latitude = $locationData['coordinates'][1];
-        }
-
+        [$location, $cityId, $longitude, $latitude] = $this->getLocation();
+        $task->location = $location;
+        $task->city_id = $cityId;
+        $task->longitude = $longitude;
+        $task->latitude = $latitude;
         $task->budget = $this->budget;
         $task->deadline = $this->deadline;
         $task->status = TaskBasic::STATUS_NEW;
@@ -140,4 +121,38 @@ class NewTaskForm extends Model
         return $task;
     }
 
+    /**
+     * Создает массив с локацией.
+     *
+     * @return array Массив с локацией.
+     *
+     * @throws GuzzleException
+     * @throws \JsonException
+     */
+    protected function getLocation(): array
+    {
+        if (!$this->location) {
+            return [null, null, null, null];
+        }
+
+        $locationData = Geocoder::getLocationData($this->location);
+
+        if (!isset($locationData['city'])) {
+            return [null, null, null, null];
+        }
+        $city = City::findOne(['name' => $locationData['city']]);
+        if (!$city) {
+            return [null, null, null, null];
+        }
+
+        if (!isset($locationData['address'])) {
+            return [null, null, null, null];
+        }
+
+        if (!isset($locationData['coordinates'])) {
+            return [null, null, null, null];
+        }
+
+        return [$locationData['address'], $city->id, $locationData['coordinates'][0], $locationData['coordinates'][1]];
+    }
 }
